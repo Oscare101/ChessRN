@@ -1,43 +1,24 @@
-import {Dimensions, FlatList, StyleSheet, Text, View} from 'react-native';
-import React from 'react';
+import {
+  Dimensions,
+  FlatList,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import React, {useState} from 'react';
+import {useSelector} from 'react-redux';
+import {RootState} from '../redux';
+import rules from '../constants/rules';
+import RenderRowItem from '../components/chess/RenderRowItem';
 
 const width = Dimensions.get('screen').width;
 
-const columns: string[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
-const rows: number[] = [1, 2, 3, 4, 5, 6, 7, 8];
-
-function RenderCellItem({column, row}: any) {
-  const cellIndex: number = column.index + row.index * rows.length;
-  const isEven: boolean =
-    (column.index % 2 === 0 && row.index % 2 === 0) ||
-    (column.index % 2 === 1 && row.index % 2 === 1);
-  return (
-    <View
-      style={{
-        width: width * 0.12,
-        aspectRatio: 1,
-        backgroundColor: isEven ? 'grey' : 'lightgrey',
-      }}>
-      <Text>
-        {/* {column.index} {row.index} */}
-        {column.index + row.index * rows.length}
-        {/* {column.item} {row.item} */}
-      </Text>
-    </View>
-  );
-}
-
-function RenderRowItem({row}: any) {
-  return (
-    <FlatList
-      horizontal
-      data={columns}
-      renderItem={(item: any) => <RenderCellItem column={item} row={row} />}
-    />
-  );
-}
-
 export default function ChessScreen() {
+  const piecesPlacementLog = useSelector(
+    (state: RootState) => state.piecesPlacementLog,
+  );
+  const [activeCell, setActiveCell] = useState<number | null>();
   return (
     <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
       <View
@@ -46,11 +27,14 @@ export default function ChessScreen() {
           aspectRatio: 1,
         }}>
         <FlatList
-          // style={{flexDirection: 'column-reverse'}}
           inverted
-          data={rows}
-          renderItem={(item: any) => <RenderRowItem row={item} />}
-          // style={}
+          data={rules.rows}
+          renderItem={(item: any) => (
+            <RenderRowItem
+              row={item}
+              onPress={(cell: number) => console.log(cell)}
+            />
+          )}
         />
       </View>
     </View>
