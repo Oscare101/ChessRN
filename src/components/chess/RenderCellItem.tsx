@@ -7,9 +7,9 @@ import {RootState} from '../../redux';
 const width = Dimensions.get('screen').width;
 
 export default function RenderCellItem(props: any) {
-  const piecesPlacementLog = useSelector(
-    (state: RootState) => state.piecesPlacementLog,
-  );
+  // const piecesPlacementLog = useSelector(
+  //   (state: RootState) => state.piecesPlacementLog,
+  // );
 
   const cellIndex: number =
     props.column.index + props.row.index * rules.rows.length;
@@ -17,16 +17,25 @@ export default function RenderCellItem(props: any) {
     (props.column.index % 2 === 0 && props.row.index % 2 === 0) ||
     (props.column.index % 2 === 1 && props.row.index % 2 === 1);
 
+  const cell =
+    props.piecesPlacementLog[props.piecesPlacementLog.length - 1][cellIndex];
+  // console.log(cell);
+  const piece = cell?.piece;
   return (
     <TouchableOpacity
-      onPress={() => props.onPress(cellIndex)}
+      onPress={() => props.onPress(cellIndex, piece)}
+      disabled={cell.status === 'free'}
       style={{
         width: width * 0.12,
         aspectRatio: 1,
-        backgroundColor: isEven ? 'grey' : 'lightgrey',
+        backgroundColor: props.routeCells?.includes(cellIndex)
+          ? 'red'
+          : isEven
+          ? 'grey'
+          : 'lightgrey',
       }}>
       <Text>
-        {piecesPlacementLog[piecesPlacementLog.length - 1][cellIndex]?.name}
+        {piece && piece.name}
         {cellIndex}
       </Text>
     </TouchableOpacity>

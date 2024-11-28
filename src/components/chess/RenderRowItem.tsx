@@ -9,7 +9,14 @@ export default function RenderRowItem(props: any) {
       horizontal
       data={rules.columns}
       renderItem={(item: any) => (
-        <RenderCellItem column={item} row={props.row} onPress={props.onPress} />
+        <RenderCellItem
+          column={item}
+          row={props.row}
+          onPress={props.onPress}
+          activeCell={props.activeCell}
+          routeCells={props.routeCells}
+          piecesPlacementLog={props.piecesPlacementLog}
+        />
       )}
     />
   );
