@@ -1,6 +1,10 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {
+  PiecePlacementLogArrayType,
+  PiecePlacementType,
+} from '../constants/interfaces';
 
-const initialState: any[] = [
+const initialState: PiecePlacementLogArrayType = [
   {
     0: {piece: {color: 'white', id: 'WR1', name: 'Rook'}, status: 'occupied'},
     1: {
@@ -18,7 +22,7 @@ const initialState: any[] = [
       status: 'occupied',
     },
     6: {
-      piece: {color: 'white', id: 'WKn2', name: 'Knight'},
+      piece: {color: 'white', id: 'WKN2', name: 'Knight'},
       status: 'occupied',
     },
     7: {piece: {color: 'white', id: 'WR2', name: 'Rook'}, status: 'occupied'},
@@ -72,7 +76,7 @@ const initialState: any[] = [
     55: {piece: {color: 'black', id: 'BP8', name: 'Pawn'}, status: 'occupied'},
     56: {piece: {color: 'black', id: 'BR1', name: 'Rook'}, status: 'occupied'},
     57: {
-      piece: {color: 'black', id: 'BKn1', name: 'Knight'},
+      piece: {color: 'black', id: 'BKN1', name: 'Knight'},
       status: 'occupied',
     },
     58: {
@@ -86,7 +90,7 @@ const initialState: any[] = [
       status: 'occupied',
     },
     62: {
-      piece: {color: 'black', id: 'BKn2', name: 'Knight'},
+      piece: {color: 'black', id: 'BKN2', name: 'Knight'},
       status: 'occupied',
     },
     63: {piece: {color: 'black', id: 'BR2', name: 'Rook'}, status: 'occupied'},
@@ -97,7 +101,10 @@ const piecesPlacementLogSlice = createSlice({
   name: 'piecesPlacementLog',
   initialState,
   reducers: {
-    updatepiecesPlacementLog: (state, action: PayloadAction<any[]>) => {
+    updatepiecesPlacementLog: (
+      state,
+      action: PayloadAction<PiecePlacementLogArrayType>,
+    ) => {
       state.splice(0, state.length, ...action.payload);
     },
   },

@@ -1,3 +1,5 @@
+import {PiecePlacementLogType, PieceType} from '../constants/interfaces';
+
 export function KnightMovement(
   position: number,
   activePiece: any,
@@ -34,4 +36,22 @@ export function KnightMovement(
       piecesPlacement[i].status === 'free',
   );
   return movementsArr;
+}
+
+export function MakeMove(
+  piecePlacement: PiecePlacementLogType,
+  from: number,
+  to: number,
+) {
+  if (
+    piecePlacement[from].piece !== undefined &&
+    piecePlacement[to].status === 'free'
+  ) {
+    const piece: PieceType['value'] = piecePlacement[from]?.piece;
+
+    let newPiecePlacement = {...piecePlacement};
+    newPiecePlacement[from] = {status: 'free'};
+    newPiecePlacement[to] = {status: 'occupied', piece: piece};
+    return newPiecePlacement;
+  }
 }

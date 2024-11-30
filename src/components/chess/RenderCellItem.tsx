@@ -24,17 +24,21 @@ export default function RenderCellItem(props: any) {
   return (
     <TouchableOpacity
       onPress={() => props.onPress(cellIndex, piece)}
-      disabled={cell.status === 'free'}
+      // disabled={cell.status === 'free'}
       style={{
         width: width * 0.12,
         aspectRatio: 1,
-        backgroundColor: props.routeCells?.includes(cellIndex)
-          ? 'red'
-          : isEven
-          ? 'grey'
-          : 'lightgrey',
+        backgroundColor:
+          props.activeCell === cellIndex
+            ? 'yellow'
+            : props.routeCells?.includes(cellIndex)
+            ? 'red'
+            : isEven
+            ? 'grey'
+            : 'lightgrey',
       }}>
       <Text>
+        {piece && piece.color}
         {piece && piece.name}
         {cellIndex}
       </Text>
