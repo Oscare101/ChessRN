@@ -21,7 +21,7 @@ export function KnightMovement(
   const m5 =
     rowIndex >= 2 && columnIndex >= 1 && (rowIndex - 2) * 8 + (columnIndex - 1);
   const m6 =
-    rowIndex >= 2 && columnIndex >= 2 && (rowIndex - 1) * 8 + (columnIndex - 2);
+    rowIndex >= 1 && columnIndex >= 2 && (rowIndex - 1) * 8 + (columnIndex - 2);
   const m7 =
     rowIndex <= 6 && columnIndex >= 2 && (rowIndex + 1) * 8 + (columnIndex - 2);
   const m8 =
@@ -45,10 +45,11 @@ export function MakeMove(
 ) {
   if (
     piecePlacement[from].piece !== undefined &&
-    piecePlacement[to].status === 'free'
+    (piecePlacement[to].status === 'free' ||
+      (piecePlacement[to].status === 'occupied' &&
+        piecePlacement[to].piece?.color !== piecePlacement[from].piece?.color))
   ) {
     const piece: PieceType['value'] = piecePlacement[from]?.piece;
-
     let newPiecePlacement = {...piecePlacement};
     newPiecePlacement[from] = {status: 'free'};
     newPiecePlacement[to] = {status: 'occupied', piece: piece};

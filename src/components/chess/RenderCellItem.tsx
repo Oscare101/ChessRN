@@ -37,7 +37,7 @@ export default function RenderCellItem(props: any) {
             ? 'grey'
             : 'lightgrey',
       }}>
-      <Text>
+      <Text style={{color: piece?.color}}>
         {piece && piece.color}
         {piece && piece.name}
         {cellIndex}
