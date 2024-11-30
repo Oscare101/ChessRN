@@ -41,6 +41,7 @@ export default function RenderCellItem(props: any) {
         {piece && piece.color}
         {piece && piece.name}
         {cellIndex}
+        {cell.status}
       </Text>
     </TouchableOpacity>
   );

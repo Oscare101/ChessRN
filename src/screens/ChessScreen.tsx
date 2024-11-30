@@ -37,7 +37,11 @@ export default function ChessScreen() {
   }
 
   function CellAction(cell: number, activePiece: PieceType['value']) {
-    if (routeCells?.length && routeCells.includes(cell) && activeCell) {
+    if (
+      routeCells?.length &&
+      routeCells.includes(cell) &&
+      typeof activeCell === 'number'
+    ) {
       const newMove = MakeMove(
         piecesPlacementLog[piecesPlacementLog.length - 1],
         activeCell,
