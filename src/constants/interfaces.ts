@@ -16,3 +16,7 @@ export interface PiecePlacementLogType {
 }
 
 export type PiecePlacementLogArrayType = Array<PiecePlacementLogType>;
+
+export interface IconName {
+  value: 'Knight' | 'King' | 'Queen' | 'Pawn' | 'Bishop' | 'Rook';
+}
