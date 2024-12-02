@@ -4,7 +4,11 @@ import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../redux';
 import rules from '../constants/rules';
 import RenderRowItem from '../components/chess/RenderRowItem';
-import {KnightMovement, MakeMove} from '../functions/chessFunctions';
+import {
+  KnightMovement,
+  MakeMove,
+  PawnMovement,
+} from '../functions/chessFunctions';
 import {updatepiecesPlacementLog} from '../redux/piecesPlacementLog';
 import {PieceType} from '../constants/interfaces';
 
@@ -25,6 +29,12 @@ export default function ChessScreen() {
       setRouteCells(
         activePiece.name === 'Knight'
           ? KnightMovement(
+              newActiveCell,
+              activePiece,
+              piecesPlacementLog[piecesPlacementLog.length - 1],
+            )
+          : activePiece.name === 'Pawn'
+          ? PawnMovement(
               newActiveCell,
               activePiece,
               piecesPlacementLog[piecesPlacementLog.length - 1],

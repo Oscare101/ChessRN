@@ -1,4 +1,8 @@
-import {PiecePlacementLogType, PieceType} from '../constants/interfaces';
+import {
+  PiecePlacementLogType,
+  PiecePlacementType,
+  PieceType,
+} from '../constants/interfaces';
 
 export function KnightMovement(
   position: number,
@@ -36,6 +40,59 @@ export function KnightMovement(
       piecesPlacement[i].status === 'free',
   );
   return movementsArr;
+}
+
+export function PawnMovement(
+  position: number,
+  activePiece: any,
+  piecesPlacement: PiecePlacementLogType,
+) {
+  const activePieceColor = activePiece?.color;
+  const rowIndex: number = Math.floor(position / 8);
+  const columnIndex: number = position % 8;
+
+  let routes: number[] = [];
+  // console.log(
+  //   rowIndex <= 6 && columnIndex >= 1 && (rowIndex + 1) * 8 + (columnIndex - 1),
+  // );
+  const leftAttackIndex: number | false =
+    activePieceColor === 'white'
+      ? rowIndex <= 6 &&
+        columnIndex >= 1 &&
+        (rowIndex + 1) * 8 + (columnIndex - 1)
+      : rowIndex >= 1 &&
+        columnIndex <= 6 &&
+        (rowIndex - 1) * 8 + (columnIndex + 1);
+  const rightAttackIndex: number | false =
+    activePieceColor === 'white'
+      ? rowIndex <= 6 &&
+        columnIndex <= 6 &&
+        (rowIndex + 1) * 8 + (columnIndex + 1)
+      : rowIndex >= 1 &&
+        columnIndex >= 1 &&
+        (rowIndex - 1) * 8 + (columnIndex - 1);
+  console.log(leftAttackIndex, rightAttackIndex);
+
+  if (
+    typeof leftAttackIndex === 'number' &&
+    piecesPlacement[leftAttackIndex].status === 'occupied' &&
+    piecesPlacement[leftAttackIndex].piece?.color !== activePieceColor
+  ) {
+    routes = [...routes, leftAttackIndex];
+  }
+  if (
+    typeof rightAttackIndex === 'number' &&
+    piecesPlacement[rightAttackIndex].status === 'occupied' &&
+    piecesPlacement[rightAttackIndex].piece?.color !== activePieceColor
+  ) {
+    routes = [...routes, rightAttackIndex];
+  }
+  // if (
+  //   rowIndex >= 1 &&
+  //   columnIndex <= 6 &&
+  //   (rowIndex - 1) * 8 + (columnIndex + 1)
+  // )
+  return routes;
 }
 
 export function MakeMove(
