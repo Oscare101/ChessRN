@@ -52,9 +52,7 @@ export function PawnMovement(
   const columnIndex: number = position % 8;
 
   let routes: number[] = [];
-  // console.log(
-  //   rowIndex <= 6 && columnIndex >= 1 && (rowIndex + 1) * 8 + (columnIndex - 1),
-  // );
+
   const leftAttackIndex: number | false =
     activePieceColor === 'white'
       ? rowIndex <= 6 &&
@@ -71,8 +69,16 @@ export function PawnMovement(
       : rowIndex >= 1 &&
         columnIndex >= 1 &&
         (rowIndex - 1) * 8 + (columnIndex - 1);
-  console.log(leftAttackIndex, rightAttackIndex);
+  const forwardIndex: number | false =
+    activePieceColor === 'white'
+      ? rowIndex <= 6 && (rowIndex + 1) * 8 + columnIndex
+      : rowIndex >= 1 && (rowIndex - 1) * 8 + columnIndex;
+  const doubleForwardIndex: number | false =
+    activePieceColor === 'white'
+      ? rowIndex === 1 && (rowIndex + 2) * 8 + columnIndex
+      : rowIndex === 6 && (rowIndex - 2) * 8 + columnIndex;
 
+  // left attack
   if (
     typeof leftAttackIndex === 'number' &&
     piecesPlacement[leftAttackIndex].status === 'occupied' &&
@@ -80,6 +86,7 @@ export function PawnMovement(
   ) {
     routes = [...routes, leftAttackIndex];
   }
+  // right attack
   if (
     typeof rightAttackIndex === 'number' &&
     piecesPlacement[rightAttackIndex].status === 'occupied' &&
@@ -87,11 +94,22 @@ export function PawnMovement(
   ) {
     routes = [...routes, rightAttackIndex];
   }
-  // if (
-  //   rowIndex >= 1 &&
-  //   columnIndex <= 6 &&
-  //   (rowIndex - 1) * 8 + (columnIndex + 1)
-  // )
+  // forward
+  if (
+    typeof forwardIndex === 'number' &&
+    piecesPlacement[forwardIndex].status === 'free'
+  ) {
+    routes = [...routes, forwardIndex];
+  }
+  // double forward
+  if (
+    typeof doubleForwardIndex === 'number' &&
+    piecesPlacement[doubleForwardIndex].status === 'free' &&
+    typeof forwardIndex === 'number' &&
+    piecesPlacement[forwardIndex].status === 'free'
+  ) {
+    routes = [...routes, doubleForwardIndex];
+  }
   return routes;
 }
 
@@ -106,10 +124,25 @@ export function MakeMove(
       (piecePlacement[to].status === 'occupied' &&
         piecePlacement[to].piece?.color !== piecePlacement[from].piece?.color))
   ) {
-    const piece: PieceType['value'] = piecePlacement[from]?.piece;
     let newPiecePlacement = {...piecePlacement};
-    newPiecePlacement[from] = {status: 'free'};
-    newPiecePlacement[to] = {status: 'occupied', piece: piece};
+    let piece: PieceType['value'] = {...piecePlacement[from]?.piece};
+
+    if (
+      piecePlacement[from].piece.name === 'Pawn' &&
+      ((piecePlacement[from].piece.color === 'white' &&
+        Math.floor(to / 8) === 7) ||
+        (piecePlacement[from].piece.color === 'black' &&
+          Math.floor(to / 8) === 0))
+    ) {
+      newPiecePlacement[from] = {status: 'free'};
+      newPiecePlacement[to] = {
+        status: 'occupied',
+        piece: {...piece, name: 'Queen'},
+      };
+    } else {
+      newPiecePlacement[from] = {status: 'free'};
+      newPiecePlacement[to] = {status: 'occupied', piece: piece};
+    }
     return newPiecePlacement;
   }
 }
