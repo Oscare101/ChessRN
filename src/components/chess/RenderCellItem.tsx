@@ -1,8 +1,9 @@
-import {Text, TouchableOpacity, Dimensions} from 'react-native';
+import {Text, TouchableOpacity, Dimensions, View} from 'react-native';
 import React from 'react';
 import rules from '../../constants/rules';
 import Icon from '../icons/Icon';
 import {IsCellUnderAttack} from '../../functions/chessFunctions';
+import colors from '../../constants/colors';
 
 const width = Dimensions.get('screen').width;
 
@@ -28,15 +29,40 @@ export default function RenderCellItem(props: any) {
         aspectRatio: 1,
         backgroundColor:
           props.activeCell === cellIndex
-            ? 'yellow'
-            : props.routeCells?.includes(cellIndex)
-            ? 'red'
+            ? colors.piecePoint
             : isEven
-            ? 'grey'
-            : 'lightgrey',
+            ? colors.cellBlack
+            : colors.cellWhite,
         transform: props.step === 'black' ? [{rotate: '180deg'}] : [],
       }}>
-      <Text
+      {props.routeCells?.includes(cellIndex) ? (
+        props.piecesPlacementLog[props.piecesPlacementLog.length - 1][cellIndex]
+          .status === 'free' ? (
+          <View
+            style={{
+              width: '40%',
+              aspectRatio: 1,
+              borderRadius: 100,
+              backgroundColor: colors.cellPoint,
+              position: 'absolute',
+            }}
+          />
+        ) : (
+          <View
+            style={{
+              width: '100%',
+              aspectRatio: 1,
+              borderRadius: 100,
+              borderColor: colors.cellPoint,
+              position: 'absolute',
+              borderWidth: 5,
+            }}
+          />
+        )
+      ) : (
+        <></>
+      )}
+      {/* <Text
         style={{
           color: IsCellUnderAttack(
             cellIndex,
@@ -46,16 +72,15 @@ export default function RenderCellItem(props: any) {
             ? 'red'
             : piece?.color,
         }}>
-        {/* {piece && piece.color} */}
-        {/* {piece && piece.name} */}
         {cellIndex}
-        {/* {cell.status} */}
-      </Text>
+      </Text> */}
       {piece && piece.name ? (
         <Icon
           name={piece.name}
           size={width * 0.12 * 0.9}
-          color={piece.color === 'black' ? rules.blackColor : piece.color}
+          color={
+            piece.color === 'black' ? colors.pieceBlack : colors.pieceWhite
+          }
         />
       ) : (
         <></>

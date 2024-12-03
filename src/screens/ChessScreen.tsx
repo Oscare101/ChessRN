@@ -15,6 +15,7 @@ import {
 } from '../functions/chessFunctions';
 import {updatepiecesPlacementLog} from '../redux/piecesPlacementLog';
 import {PieceType} from '../constants/interfaces';
+import colors from '../constants/colors';
 
 const width = Dimensions.get('screen').width;
 
@@ -143,7 +144,13 @@ export default function ChessScreen() {
   }
 
   return (
-    <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
+    <View
+      style={{
+        alignItems: 'center',
+        justifyContent: 'center',
+        flex: 1,
+        backgroundColor: colors.bg,
+      }}>
       <Text>
         {piecesPlacementLog.length} {step}
       </Text>
