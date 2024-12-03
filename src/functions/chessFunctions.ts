@@ -113,6 +113,73 @@ export function PawnMovement(
   return routes;
 }
 
+export function RookMovement(
+  position: number,
+  activePiece: any,
+  piecesPlacement: PiecePlacementLogType,
+) {
+  const activePieceColor = activePiece?.color;
+  const rowIndex: number = Math.floor(position / 8);
+  const columnIndex: number = position % 8;
+  // console.log(rowIndex);
+
+  let routes: number[] = [];
+  // const column: number[] = [];
+  // const row: number[] = [];
+  // for (let i = 0; i <= 7; i++) {
+  //   routes = [...routes, columnIndex + i * 8, rowIndex * 8 + i];
+  // }
+
+  let top: number[] = [];
+  let row: number = rowIndex;
+  let column: number = columnIndex;
+
+  function Is(newIndex: number) {
+    if (
+      piecesPlacement[newIndex].status === 'occupied' &&
+      piecesPlacement[newIndex].piece?.color === activePieceColor
+    ) {
+      return true;
+    } else if (
+      piecesPlacement[newIndex].status === 'occupied' &&
+      piecesPlacement[newIndex].piece?.color !== activePieceColor
+    ) {
+      routes.push(newIndex);
+      return true;
+    } else {
+      routes.push(newIndex);
+    }
+  }
+
+  // top
+  while (row < 7) {
+    row += 1;
+    const newIndex = row * 8 + (columnIndex % 8);
+    if (Is(newIndex)) break;
+  }
+  // bottom
+  while (row > 0) {
+    row -= 1;
+    const newIndex = row * 8 + (columnIndex % 8);
+    if (Is(newIndex)) break;
+  }
+  // left
+  while (column > 0) {
+    column -= 1;
+    const newIndex = rowIndex * 8 + (column % 8);
+    if (Is(newIndex)) break;
+  }
+  // right
+  while (column < 7) {
+    column += 1;
+    const newIndex = rowIndex * 8 + (column % 8);
+    if (Is(newIndex)) break;
+  }
+  console.log(top);
+
+  return routes.filter((i: number) => i !== position);
+}
+
 export function MakeMove(
   piecePlacement: PiecePlacementLogType,
   from: number,

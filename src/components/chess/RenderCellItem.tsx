@@ -51,13 +51,13 @@ export default function RenderCellItem(props: any) {
         />
       ) : (
         <></>
-        // <Text style={{color: piece?.color}}>
-        //   {piece && piece.color}
-        //   {piece && piece.name}
-        //   {cellIndex}
-        //   {cell.status}
-        // </Text>
       )}
+      <Text style={{color: piece?.color}}>
+        {/* {piece && piece.color} */}
+        {/* {piece && piece.name} */}
+        {cellIndex}
+        {/* {cell.status} */}
+      </Text>
     </TouchableOpacity>
   );
 }

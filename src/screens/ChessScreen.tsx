@@ -8,6 +8,7 @@ import {
   KnightMovement,
   MakeMove,
   PawnMovement,
+  RookMovement,
 } from '../functions/chessFunctions';
 import {updatepiecesPlacementLog} from '../redux/piecesPlacementLog';
 import {PieceType} from '../constants/interfaces';
@@ -35,6 +36,12 @@ export default function ChessScreen() {
             )
           : activePiece.name === 'Pawn'
           ? PawnMovement(
+              newActiveCell,
+              activePiece,
+              piecesPlacementLog[piecesPlacementLog.length - 1],
+            )
+          : activePiece.name === 'Rook'
+          ? RookMovement(
               newActiveCell,
               activePiece,
               piecesPlacementLog[piecesPlacementLog.length - 1],
