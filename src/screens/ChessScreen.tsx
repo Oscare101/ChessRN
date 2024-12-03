@@ -53,6 +53,19 @@ export default function ChessScreen() {
               activePiece,
               piecesPlacementLog[piecesPlacementLog.length - 1],
             )
+          : activePiece.name === 'Queen'
+          ? [
+              ...BishopMovement(
+                newActiveCell,
+                activePiece,
+                piecesPlacementLog[piecesPlacementLog.length - 1],
+              ),
+              ...RookMovement(
+                newActiveCell,
+                activePiece,
+                piecesPlacementLog[piecesPlacementLog.length - 1],
+              ),
+            ]
           : [],
       );
     } else {
