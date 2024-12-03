@@ -11,7 +11,7 @@ export function KnightMovement(
 ) {
   const activePieceColor = activePiece?.color;
 
-  // Всі можливі зміщення для коня
+  // all directions
   const knightMoves = [
     {row: 2, col: 1},
     {row: 1, col: 2},
@@ -26,16 +26,13 @@ export function KnightMovement(
   const rowIndex: number = Math.floor(position / 8);
   const columnIndex: number = position % 8;
 
-  // Побудова можливих рухів
   const routes: number[] = knightMoves
     .map(({row, col}) => ({
       row: rowIndex + row,
       col: columnIndex + col,
     }))
-    .filter(
-      ({row, col}) => row >= 0 && row < 8 && col >= 0 && col < 8, // Залишити тільки дійсні клітинки
-    )
-    .map(({row, col}) => row * 8 + col) // Перетворити на індекси
+    .filter(({row, col}) => row >= 0 && row < 8 && col >= 0 && col < 8)
+    .map(({row, col}) => row * 8 + col)
     .filter(
       (i: number) =>
         piecesPlacement[i].status === 'free' ||
@@ -63,7 +60,7 @@ export function PawnMovement(
 
   const routes: number[] = [];
 
-  // Хід вперед
+  // forward
   const forwardIndex = position + directions.forward * 8;
   if (
     rowIndex + directions.forward >= 0 &&
@@ -73,7 +70,7 @@ export function PawnMovement(
   ) {
     routes.push(forwardIndex);
 
-    // Подвійний хід вперед
+    // double forward
     const doubleForwardIndex = position + directions.forward * 8 * 2;
     if (
       rowIndex === directions.startRow &&
@@ -83,8 +80,8 @@ export function PawnMovement(
     }
   }
 
-  // Атака по діагоналі
-  const attackOffsets = [-1, 1]; // Зміщення по колонках для атаки ліворуч і праворуч
+  // diagonal attack
+  const attackOffsets = [-1, 1];
   for (const colOffset of attackOffsets) {
     const attackRow = rowIndex + directions.forward;
     const attackColumn = columnIndex + colOffset;
@@ -97,8 +94,9 @@ export function PawnMovement(
       attackColumn <= 7 &&
       attackIndex >= 0 &&
       attackIndex <= 63 &&
-      piecesPlacement[attackIndex]?.status === 'occupied' &&
-      piecesPlacement[attackIndex]?.piece?.color !== activePieceColor
+      ((piecesPlacement[attackIndex]?.status === 'occupied' &&
+        piecesPlacement[attackIndex]?.piece?.color !== activePieceColor) ||
+        isAttackCheck)
     ) {
       routes.push(attackIndex);
     }
@@ -133,14 +131,14 @@ function LineDiagonalMovement(
 
       if (piecesPlacement[newIndex].status === 'occupied') {
         if (piecesPlacement[newIndex].piece?.color !== activePieceColor) {
-          routes.push(newIndex); // Додаємо, якщо це фігура супротивника
+          routes.push(newIndex); // attack
         }
-        break; // Зупиняємось, якщо клітинка зайнята
+        break; // color === activePiece
       }
 
-      routes.push(newIndex); // Додаємо, якщо клітинка пуста
+      routes.push(newIndex); // free
 
-      if (limit) break; // Зупиняємось після першого ходу для King
+      if (limit) break; // for King
     }
   }
 
@@ -154,10 +152,10 @@ export function LineMovement(
   limit: boolean, // for king
 ) {
   const directions = [
-    {rowStep: 1, colStep: 0}, // Вгору
-    {rowStep: -1, colStep: 0}, // Вниз
-    {rowStep: 0, colStep: 1}, // Праворуч
-    {rowStep: 0, colStep: -1}, // Ліворуч
+    {rowStep: 1, colStep: 0}, // up
+    {rowStep: -1, colStep: 0}, // down
+    {rowStep: 0, colStep: 1}, // right
+    {rowStep: 0, colStep: -1}, // left
   ];
   return LineDiagonalMovement(
     position,
@@ -175,10 +173,10 @@ export function DiagonalMovement(
   limit: boolean, // for king
 ) {
   const directions = [
-    {rowStep: 1, colStep: 1}, // Вгору праворуч
-    {rowStep: -1, colStep: 1}, // Вниз праворуч
-    {rowStep: 1, colStep: -1}, // Вгору ліворуч
-    {rowStep: -1, colStep: -1}, // Вниз ліворуч
+    {rowStep: 1, colStep: 1}, // up right
+    {rowStep: -1, colStep: 1}, // dowwn right
+    {rowStep: 1, colStep: -1}, // up left
+    {rowStep: -1, colStep: -1}, // down left
   ];
   return LineDiagonalMovement(
     position,
@@ -193,78 +191,77 @@ export function KingMovement(
   position: number,
   activePiece: any,
   piecesPlacement: PiecePlacementLogType,
-  castlingInfo: {[key: string]: boolean}, // Інформація про рух короля та тур
+  castlingInfo: {[key: string]: boolean},
 ) {
   let routes: number[] = [
     ...DiagonalMovement(position, activePiece, piecesPlacement, true),
     ...LineMovement(position, activePiece, piecesPlacement, true),
   ];
 
-  // Додаємо перевірку, щоб король не йшов на клітинку, яка під атакою
-  // routes = routes.filter(
-  //   route => !isCellUnderAttack(route, activePiece.color, piecesPlacement),
-  // );
+  // cannot go under attack
+  routes = routes.filter(
+    route => !IsCellUnderAttack(route, activePiece.color, piecesPlacement),
+  );
 
   const activePieceColor = activePiece.color;
 
-  // Розрахунок рокіровки
-  // function canCastle(isKingside: boolean): boolean {
-  //   const rookPosition = isKingside
-  //     ? activePieceColor === 'white'
-  //       ? 7
-  //       : 63
-  //     : activePieceColor === 'white'
-  //     ? 0
-  //     : 56;
+  // castling
+  function canCastle(isKingside: boolean): boolean {
+    const rookPosition = isKingside
+      ? activePieceColor === 'white'
+        ? 7
+        : 63
+      : activePieceColor === 'white'
+      ? 0
+      : 56;
 
-  //   const direction = isKingside ? 1 : -1;
+    const direction = isKingside ? 1 : -1;
 
-  //   // Клітинки між королем і турою
-  //   const emptyPositions = [
-  //     position + direction,
-  //     position + 2 * direction,
-  //     ...(isKingside ? [] : [position + 3 * direction]), // Для ферзевого боку
-  //   ];
+    // space between king and rook
+    const emptyPositions = [
+      position + direction,
+      position + 2 * direction,
+      ...(isKingside ? [] : [position + 3 * direction]), // Для ферзевого боку
+    ];
 
-  //   // Перевірка, чи тур і король не рухались
-  //   if (
-  //     castlingInfo[`${activePieceColor}KingMoved`] ||
-  //     castlingInfo[`${rookPosition}RookMoved`]
-  //   ) {
-  //     return false;
-  //   }
+    // check if not used
+    if (
+      castlingInfo[`${activePieceColor}KingMoved`] ||
+      castlingInfo[`${rookPosition}RookMoved`]
+    ) {
+      return false;
+    }
 
-  //   // Перевірка, чи клітинки між королем і турою вільні
-  //   if (emptyPositions.some(pos => piecesPlacement[pos].status !== 'free')) {
-  //     return false;
-  //   }
+    // check if cells are free
+    if (emptyPositions.some(pos => piecesPlacement[pos].status !== 'free')) {
+      return false;
+    }
 
-  //   // Перевірка, чи клітинки між королем і турою або позиція короля не під шахом
-  //   const threatenedPositions = [position, ...emptyPositions];
-  //   if (
-  //     threatenedPositions.some(pos =>
-  //       IsCellUnderAttack(pos, activePieceColor, piecesPlacement),
-  //     )
-  //   ) {
-  //     return false;
-  //   }
+    // check if ceels is NOT under attack
+    const threatenedPositions = [position, ...emptyPositions];
+    if (
+      threatenedPositions.some(pos =>
+        IsCellUnderAttack(pos, activePieceColor, piecesPlacement),
+      )
+    ) {
+      return false;
+    }
 
-  //   return true;
-  // }
+    return true;
+  }
 
-  // Додамо рокіровку, якщо можливо
-  // if (activePieceColor === 'white' && position === 4) {
-  //   if (canCastle(true)) routes.push(6); // Королівський фланг
-  //   if (canCastle(false)) routes.push(2); // Ферзевий фланг
-  // } else if (activePieceColor === 'black' && position === 60) {
-  //   if (canCastle(true)) routes.push(62); // Королівський фланг
-  //   if (canCastle(false)) routes.push(58); // Ферзевий фланг
-  // }
+  // castling if possible
+  if (activePieceColor === 'white' && position === 4) {
+    if (canCastle(true)) routes.push(6); // king side
+    if (canCastle(false)) routes.push(2); // queen side
+  } else if (activePieceColor === 'black' && position === 60) {
+    if (canCastle(true)) routes.push(62); // king side
+    if (canCastle(false)) routes.push(58); // queen side
+  }
 
   return routes;
 }
 
-// Допоміжна функція для перевірки, чи клітинка під атакою
 export function IsCellUnderAttack(
   cellIndex: number,
   color: 'white' | 'black',
@@ -272,7 +269,7 @@ export function IsCellUnderAttack(
 ): boolean {
   const opponentColor = color === 'white' ? 'black' : 'white';
 
-  // Перевіряємо всі фігури суперника
+  // all opponents pieces
   for (const [index, placement] of Object.entries(piecesPlacement)) {
     if (
       placement.status === 'occupied' &&
@@ -318,6 +315,25 @@ export function MakeMove(
   ) {
     let newPiecePlacement = {...piecePlacement};
     let piece: PieceType['value'] = {...piecePlacement[from]?.piece};
+    // castling
+    function MoveRookCastle(cellFrom: number, cellTo: number) {
+      newPiecePlacement[cellTo] = {
+        status: 'occupied',
+        piece: piecePlacement[cellFrom].piece,
+      };
+      newPiecePlacement[cellFrom] = {status: 'free'};
+    }
+    if (piecePlacement[from].piece.name === 'King') {
+      if (from === 4 && to === 6) {
+        MoveRookCastle(7, 5);
+      } else if (from === 4 && to === 2) {
+        MoveRookCastle(0, 3);
+      } else if (from === 60 && to === 62) {
+        MoveRookCastle(63, 61);
+      } else if (from === 60 && to === 58) {
+        MoveRookCastle(56, 59);
+      }
+    }
 
     if (
       piecePlacement[from].piece.name === 'Pawn' &&

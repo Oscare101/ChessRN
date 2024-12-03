@@ -16,6 +16,7 @@ export default function RenderRowItem(props: any) {
           activeCell={props.activeCell}
           routeCells={props.routeCells}
           piecesPlacementLog={props.piecesPlacementLog}
+          step={props.step}
         />
       )}
     />

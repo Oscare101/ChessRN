@@ -1,20 +1,12 @@
-import {View, Text, TouchableOpacity, Dimensions} from 'react-native';
+import {Text, TouchableOpacity, Dimensions} from 'react-native';
 import React from 'react';
 import rules from '../../constants/rules';
-import {useSelector} from 'react-redux';
-import {RootState} from '../../redux';
-import {SvgXml} from 'react-native-svg';
-import PawnIcon from '../icons/PawnIcon';
 import Icon from '../icons/Icon';
-// import Icon from '../icons/Icon';
+import {IsCellUnderAttack} from '../../functions/chessFunctions';
 
 const width = Dimensions.get('screen').width;
 
 export default function RenderCellItem(props: any) {
-  // const piecesPlacementLog = useSelector(
-  //   (state: RootState) => state.piecesPlacementLog,
-  // );
-
   const cellIndex: number =
     props.column.index + props.row.index * rules.rows.length;
   const isEven: boolean =
@@ -23,8 +15,8 @@ export default function RenderCellItem(props: any) {
 
   const cell =
     props.piecesPlacementLog[props.piecesPlacementLog.length - 1][cellIndex];
-  // console.log(cell);
   const piece = cell?.piece;
+
   return (
     <TouchableOpacity
       onPress={() => props.onPress(cellIndex, piece)}
@@ -42,8 +34,18 @@ export default function RenderCellItem(props: any) {
             : isEven
             ? 'grey'
             : 'lightgrey',
+        transform: props.step === 'black' ? [{rotate: '180deg'}] : [],
       }}>
-      <Text style={{color: piece?.color}}>
+      <Text
+        style={{
+          color: IsCellUnderAttack(
+            cellIndex,
+            props.step,
+            props.piecesPlacementLog[props.piecesPlacementLog.length - 1],
+          )
+            ? 'red'
+            : piece?.color,
+        }}>
         {/* {piece && piece.color} */}
         {/* {piece && piece.name} */}
         {cellIndex}

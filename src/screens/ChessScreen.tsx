@@ -26,9 +26,9 @@ export default function ChessScreen() {
   const [activeCell, setActiveCell] = useState<number | null>();
   const [routeCells, setRouteCells] = useState<number[]>();
   const [castlingInfo, setCastlingInfo] = useState<any>({
-    whiteKingMoved: true, // Якщо білий король рухався
-    '0RookMoved': true, // Якщо біла тура на клітинці 0 рухалася
-    '7RookMoved': false, // Якщо біла тура на клітинці 7 не рухалася
+    whiteKingMoved: false,
+    '0RookMoved': false,
+    '7RookMoved': false,
     blackKingMoved: false,
     '56RookMoved': false,
     '63RookMoved': false,
@@ -38,16 +38,6 @@ export default function ChessScreen() {
   function OnNewPiecePoint(cell: number, activePiece: PieceType['value']) {
     const newActiveCell = activeCell === cell ? null : cell;
     if (step === activePiece.color) setActiveCell(newActiveCell);
-    // console.log('a');
-
-    // console.log(
-    //   IsCellUnderAttack(
-    //     cell,
-    //     step,
-    //     piecesPlacementLog[piecesPlacementLog.length - 1],
-    //   ),
-    // );
-
     if (
       activePiece.name &&
       newActiveCell !== null &&
@@ -111,14 +101,6 @@ export default function ChessScreen() {
   }
 
   function CellAction(cell: number, activePiece: PieceType['value']) {
-    // if (
-    //   piecesPlacementLog[piecesPlacementLog.length - 1][cell].piece &&
-    //   step !== piecesPlacementLog[piecesPlacementLog.length - 1][cell].piece.color
-    // ) {
-    //   setActiveCell(null);
-    //   setRouteCells([]);
-    //   return;
-    // }
     if (
       routeCells?.length &&
       routeCells.includes(cell) &&
@@ -132,6 +114,20 @@ export default function ChessScreen() {
       if (newMove) {
         dispatch(updatepiecesPlacementLog([...piecesPlacementLog, newMove]));
       }
+
+      const pieceId =
+        piecesPlacementLog[piecesPlacementLog.length - 1][activeCell].piece?.id;
+      setCastlingInfo({
+        whiteKingMoved:
+          pieceId === 'WK' ? true : castlingInfo['whiteKingMoved'],
+        '0RookMoved': pieceId === 'WR1' ? true : castlingInfo['0RookMoved'],
+        '7RookMoved': pieceId === 'WR2' ? true : castlingInfo['7RookMoved'],
+        blackKingMoved:
+          pieceId === 'BK' ? true : castlingInfo['blackKingMoved'],
+        '56RookMoved': pieceId === 'BR1' ? true : castlingInfo['56RookMoved'],
+        '63RookMoved': pieceId === 'BR2' ? true : castlingInfo['63RookMoved'],
+      });
+
       setStep(prev => (prev === 'white' ? 'black' : 'white'));
       setActiveCell(null);
       setRouteCells([]);
@@ -168,6 +164,7 @@ export default function ChessScreen() {
               activeCell={activeCell}
               routeCells={routeCells}
               piecesPlacementLog={piecesPlacementLog}
+              step={step}
             />
           )}
         />
