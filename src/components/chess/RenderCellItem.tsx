@@ -43,6 +43,12 @@ export default function RenderCellItem(props: any) {
             ? 'grey'
             : 'lightgrey',
       }}>
+      <Text style={{color: piece?.color}}>
+        {/* {piece && piece.color} */}
+        {/* {piece && piece.name} */}
+        {cellIndex}
+        {/* {cell.status} */}
+      </Text>
       {piece && piece.name ? (
         <Icon
           name={piece.name}
@@ -52,12 +58,6 @@ export default function RenderCellItem(props: any) {
       ) : (
         <></>
       )}
-      <Text style={{color: piece?.color}}>
-        {/* {piece && piece.color} */}
-        {/* {piece && piece.name} */}
-        {cellIndex}
-        {/* {cell.status} */}
-      </Text>
     </TouchableOpacity>
   );
 }

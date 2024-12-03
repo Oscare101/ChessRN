@@ -6,6 +6,7 @@ import rules from '../constants/rules';
 import RenderRowItem from '../components/chess/RenderRowItem';
 import {
   DiagonalMovement,
+  IsCellUnderAttack,
   KingMovement,
   KnightMovement,
   LineMovement,
@@ -21,14 +22,37 @@ export default function ChessScreen() {
   const piecesPlacementLog = useSelector(
     (state: RootState) => state.piecesPlacementLog,
   );
+  const [step, setStep] = useState<'white' | 'black'>('white');
   const [activeCell, setActiveCell] = useState<number | null>();
   const [routeCells, setRouteCells] = useState<number[]>();
+  const [castlingInfo, setCastlingInfo] = useState<any>({
+    whiteKingMoved: true, // Якщо білий король рухався
+    '0RookMoved': true, // Якщо біла тура на клітинці 0 рухалася
+    '7RookMoved': false, // Якщо біла тура на клітинці 7 не рухалася
+    blackKingMoved: false,
+    '56RookMoved': false,
+    '63RookMoved': false,
+  });
   const dispatch = useDispatch();
 
   function OnNewPiecePoint(cell: number, activePiece: PieceType['value']) {
     const newActiveCell = activeCell === cell ? null : cell;
-    setActiveCell(newActiveCell);
-    if (activePiece.name && newActiveCell !== null) {
+    if (step === activePiece.color) setActiveCell(newActiveCell);
+    // console.log('a');
+
+    // console.log(
+    //   IsCellUnderAttack(
+    //     cell,
+    //     step,
+    //     piecesPlacementLog[piecesPlacementLog.length - 1],
+    //   ),
+    // );
+
+    if (
+      activePiece.name &&
+      newActiveCell !== null &&
+      step === activePiece.color
+    ) {
       setRouteCells(
         activePiece.name === 'Knight'
           ? KnightMovement(
@@ -76,15 +100,25 @@ export default function ChessScreen() {
               newActiveCell,
               activePiece,
               piecesPlacementLog[piecesPlacementLog.length - 1],
+              castlingInfo,
             )
           : [],
       );
     } else {
+      setActiveCell(null);
       setRouteCells([]);
     }
   }
 
   function CellAction(cell: number, activePiece: PieceType['value']) {
+    // if (
+    //   piecesPlacementLog[piecesPlacementLog.length - 1][cell].piece &&
+    //   step !== piecesPlacementLog[piecesPlacementLog.length - 1][cell].piece.color
+    // ) {
+    //   setActiveCell(null);
+    //   setRouteCells([]);
+    //   return;
+    // }
     if (
       routeCells?.length &&
       routeCells.includes(cell) &&
@@ -98,6 +132,7 @@ export default function ChessScreen() {
       if (newMove) {
         dispatch(updatepiecesPlacementLog([...piecesPlacementLog, newMove]));
       }
+      setStep(prev => (prev === 'white' ? 'black' : 'white'));
       setActiveCell(null);
       setRouteCells([]);
       return;
@@ -113,7 +148,9 @@ export default function ChessScreen() {
 
   return (
     <View style={{alignItems: 'center', justifyContent: 'center', flex: 1}}>
-      <Text>{piecesPlacementLog.length}</Text>
+      <Text>
+        {piecesPlacementLog.length} {step}
+      </Text>
       <View
         style={{
           width: width * 0.12 * 8,
