@@ -121,18 +121,67 @@ export function RookMovement(
   const activePieceColor = activePiece?.color;
   const rowIndex: number = Math.floor(position / 8);
   const columnIndex: number = position % 8;
-  // console.log(rowIndex);
 
   let routes: number[] = [];
-  // const column: number[] = [];
-  // const row: number[] = [];
-  // for (let i = 0; i <= 7; i++) {
-  //   routes = [...routes, columnIndex + i * 8, rowIndex * 8 + i];
-  // }
 
-  let top: number[] = [];
+  function Is(newIndex: number) {
+    if (
+      piecesPlacement[newIndex].status === 'occupied' &&
+      piecesPlacement[newIndex].piece?.color === activePieceColor
+    ) {
+      return true;
+    } else if (
+      piecesPlacement[newIndex].status === 'occupied' &&
+      piecesPlacement[newIndex].piece?.color !== activePieceColor
+    ) {
+      routes.push(newIndex);
+      return true;
+    } else {
+      routes.push(newIndex);
+    }
+  }
+  // top
   let row: number = rowIndex;
+  while (row < 7) {
+    row += 1;
+    const newIndex = row * 8 + (columnIndex % 8);
+    if (Is(newIndex)) break;
+  }
+  // bottom
+  row = rowIndex;
+  while (row > 0) {
+    row -= 1;
+    const newIndex = row * 8 + (columnIndex % 8);
+    if (Is(newIndex)) break;
+  }
+  // left
   let column: number = columnIndex;
+  while (column > 0) {
+    column -= 1;
+    const newIndex = rowIndex * 8 + (column % 8);
+    if (Is(newIndex)) break;
+  }
+  // right
+  column = columnIndex;
+  while (column < 7) {
+    column += 1;
+    const newIndex = rowIndex * 8 + (column % 8);
+    if (Is(newIndex)) break;
+  }
+
+  return routes.filter((i: number) => i !== position);
+}
+
+export function BishopMovement(
+  position: number,
+  activePiece: any,
+  piecesPlacement: PiecePlacementLogType,
+) {
+  const activePieceColor = activePiece?.color;
+  const rowIndex: number = Math.floor(position / 8);
+  const columnIndex: number = position % 8;
+
+  let routes: number[] = [];
 
   function Is(newIndex: number) {
     if (
@@ -151,31 +200,42 @@ export function RookMovement(
     }
   }
 
-  // top
-  while (row < 7) {
+  // top right
+  let row: number = rowIndex;
+  let column: number = columnIndex;
+  while (row < 7 && column < 7) {
     row += 1;
-    const newIndex = row * 8 + (columnIndex % 8);
-    if (Is(newIndex)) break;
-  }
-  // bottom
-  while (row > 0) {
-    row -= 1;
-    const newIndex = row * 8 + (columnIndex % 8);
-    if (Is(newIndex)) break;
-  }
-  // left
-  while (column > 0) {
-    column -= 1;
-    const newIndex = rowIndex * 8 + (column % 8);
-    if (Is(newIndex)) break;
-  }
-  // right
-  while (column < 7) {
     column += 1;
-    const newIndex = rowIndex * 8 + (column % 8);
+    const newIndex = row * 8 + (column % 8);
     if (Is(newIndex)) break;
   }
-  console.log(top);
+  // bottom right
+  row = rowIndex;
+  column = columnIndex;
+  while (row > 0 && column < 7) {
+    row -= 1;
+    column += 1;
+    const newIndex = row * 8 + (column % 8);
+    if (Is(newIndex)) break;
+  }
+  // top left
+  row = rowIndex;
+  column = columnIndex;
+  while (row < 7 && column > 0) {
+    row += 1;
+    column -= 1;
+    const newIndex = row * 8 + (column % 8);
+    if (Is(newIndex)) break;
+  }
+  // bottom left
+  row = rowIndex;
+  column = columnIndex;
+  while (row > 0 && column > 0) {
+    row -= 1;
+    column -= 1;
+    const newIndex = row * 8 + (column % 8);
+    if (Is(newIndex)) break;
+  }
 
   return routes.filter((i: number) => i !== position);
 }

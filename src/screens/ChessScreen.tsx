@@ -5,6 +5,7 @@ import {RootState} from '../redux';
 import rules from '../constants/rules';
 import RenderRowItem from '../components/chess/RenderRowItem';
 import {
+  BishopMovement,
   KnightMovement,
   MakeMove,
   PawnMovement,
@@ -42,6 +43,12 @@ export default function ChessScreen() {
             )
           : activePiece.name === 'Rook'
           ? RookMovement(
+              newActiveCell,
+              activePiece,
+              piecesPlacementLog[piecesPlacementLog.length - 1],
+            )
+          : activePiece.name === 'Bishop'
+          ? BishopMovement(
               newActiveCell,
               activePiece,
               piecesPlacementLog[piecesPlacementLog.length - 1],
