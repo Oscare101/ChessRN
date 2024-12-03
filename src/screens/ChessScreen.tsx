@@ -5,11 +5,12 @@ import {RootState} from '../redux';
 import rules from '../constants/rules';
 import RenderRowItem from '../components/chess/RenderRowItem';
 import {
-  BishopMovement,
+  DiagonalMovement,
+  KingMovement,
   KnightMovement,
+  LineMovement,
   MakeMove,
   PawnMovement,
-  RookMovement,
 } from '../functions/chessFunctions';
 import {updatepiecesPlacementLog} from '../redux/piecesPlacementLog';
 import {PieceType} from '../constants/interfaces';
@@ -42,30 +43,40 @@ export default function ChessScreen() {
               piecesPlacementLog[piecesPlacementLog.length - 1],
             )
           : activePiece.name === 'Rook'
-          ? RookMovement(
+          ? LineMovement(
               newActiveCell,
               activePiece,
               piecesPlacementLog[piecesPlacementLog.length - 1],
+              false,
             )
           : activePiece.name === 'Bishop'
-          ? BishopMovement(
+          ? DiagonalMovement(
               newActiveCell,
               activePiece,
               piecesPlacementLog[piecesPlacementLog.length - 1],
+              false,
             )
           : activePiece.name === 'Queen'
           ? [
-              ...BishopMovement(
+              ...DiagonalMovement(
                 newActiveCell,
                 activePiece,
                 piecesPlacementLog[piecesPlacementLog.length - 1],
+                false,
               ),
-              ...RookMovement(
+              ...LineMovement(
                 newActiveCell,
                 activePiece,
                 piecesPlacementLog[piecesPlacementLog.length - 1],
+                false,
               ),
             ]
+          : activePiece.name === 'King'
+          ? KingMovement(
+              newActiveCell,
+              activePiece,
+              piecesPlacementLog[piecesPlacementLog.length - 1],
+            )
           : [],
       );
     } else {

@@ -113,10 +113,11 @@ export function PawnMovement(
   return routes;
 }
 
-export function RookMovement(
+export function LineMovement(
   position: number,
   activePiece: any,
   piecesPlacement: PiecePlacementLogType,
+  limit: boolean, // for king
 ) {
   const activePieceColor = activePiece?.color;
   const rowIndex: number = Math.floor(position / 8);
@@ -146,6 +147,7 @@ export function RookMovement(
     row += 1;
     const newIndex = row * 8 + (columnIndex % 8);
     if (Is(newIndex)) break;
+    if (limit) break;
   }
   // bottom
   row = rowIndex;
@@ -153,6 +155,7 @@ export function RookMovement(
     row -= 1;
     const newIndex = row * 8 + (columnIndex % 8);
     if (Is(newIndex)) break;
+    if (limit) break;
   }
   // left
   let column: number = columnIndex;
@@ -160,6 +163,7 @@ export function RookMovement(
     column -= 1;
     const newIndex = rowIndex * 8 + (column % 8);
     if (Is(newIndex)) break;
+    if (limit) break;
   }
   // right
   column = columnIndex;
@@ -167,15 +171,17 @@ export function RookMovement(
     column += 1;
     const newIndex = rowIndex * 8 + (column % 8);
     if (Is(newIndex)) break;
+    if (limit) break;
   }
 
   return routes.filter((i: number) => i !== position);
 }
 
-export function BishopMovement(
+export function DiagonalMovement(
   position: number,
   activePiece: any,
   piecesPlacement: PiecePlacementLogType,
+  limit: boolean, // for king
 ) {
   const activePieceColor = activePiece?.color;
   const rowIndex: number = Math.floor(position / 8);
@@ -208,6 +214,7 @@ export function BishopMovement(
     column += 1;
     const newIndex = row * 8 + (column % 8);
     if (Is(newIndex)) break;
+    if (limit) break;
   }
   // bottom right
   row = rowIndex;
@@ -217,6 +224,7 @@ export function BishopMovement(
     column += 1;
     const newIndex = row * 8 + (column % 8);
     if (Is(newIndex)) break;
+    if (limit) break;
   }
   // top left
   row = rowIndex;
@@ -226,6 +234,7 @@ export function BishopMovement(
     column -= 1;
     const newIndex = row * 8 + (column % 8);
     if (Is(newIndex)) break;
+    if (limit) break;
   }
   // bottom left
   row = rowIndex;
@@ -235,9 +244,22 @@ export function BishopMovement(
     column -= 1;
     const newIndex = row * 8 + (column % 8);
     if (Is(newIndex)) break;
+    if (limit) break;
   }
 
   return routes.filter((i: number) => i !== position);
+}
+
+export function KingMovement(
+  position: number,
+  activePiece: any,
+  piecesPlacement: PiecePlacementLogType,
+) {
+  let routes: number[] = [
+    ...DiagonalMovement(position, activePiece, piecesPlacement, true),
+    ...LineMovement(position, activePiece, piecesPlacement, true),
+  ];
+  return routes;
 }
 
 export function MakeMove(
