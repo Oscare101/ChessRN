@@ -315,6 +315,87 @@ export function IsKingChecked(
   return IsCellUnderAttack(kingIndex, color, piecePlacement);
 }
 
+function SimulateMove(
+  piecePlacement: PiecePlacementLogType,
+  from: number,
+  to: number,
+  piece: PieceType['value'],
+): PiecePlacementLogType {
+  // Копіюємо поточний стан дошки
+  const newPlacement = {...piecePlacement};
+
+  // Очищуємо початкову позицію
+  newPlacement[from] = {status: 'free'};
+
+  // Переміщуємо фігуру на нову позицію
+  newPlacement[to] = {status: 'occupied', piece};
+
+  return newPlacement;
+}
+
+function GetPossibleMoves(
+  position: number,
+  piece: PieceType['value'],
+  piecePlacement: PiecePlacementLogType,
+): number[] {
+  switch (piece.name) {
+    case 'Pawn':
+      return PawnMovement(position, piece, piecePlacement);
+    case 'Rook':
+      return LineMovement(position, piece, piecePlacement, false);
+    case 'Bishop':
+      return DiagonalMovement(position, piece, piecePlacement, false);
+    case 'Queen':
+      return [
+        ...LineMovement(position, piece, piecePlacement, false),
+        ...DiagonalMovement(position, piece, piecePlacement, false),
+      ];
+    case 'King':
+      return KingMovement(position, piece, piecePlacement, {});
+    case 'Knight':
+      return KnightMovement(position, piece, piecePlacement);
+    default:
+      return [];
+  }
+}
+
+export function IsCheckmate(
+  piecePlacement: PiecePlacementLogType,
+  color: 'white' | 'black',
+): boolean {
+  // Знаходимо всі фігури поточного кольору
+  const myPieces = Object.entries(piecePlacement).filter(
+    ([, i]: [string, any]) =>
+      i.status === 'occupied' && i.piece.color === color,
+  );
+  console.log(myPieces.length);
+
+  // Для кожної фігури перевіряємо можливі ходи
+  for (const [index, piece] of myPieces) {
+    console.log(index, piece);
+    const position = parseInt(index);
+    const moves = GetPossibleMoves(position, piece.piece, piecePlacement);
+
+    for (const move of moves) {
+      // Емуляція ходу
+      const newPlacement = SimulateMove(
+        piecePlacement,
+        position,
+        move,
+        piece.piece,
+      );
+
+      // Якщо король після цього ходу не під шахом, це не мат
+      if (!IsKingChecked(newPlacement, color)) {
+        return false; // Знайдений легальний хід
+      }
+    }
+  }
+
+  // Якщо всі ходи випробувані і жоден не знімає шах, це мат
+  return true;
+}
+
 export function MakeMove(
   piecePlacement: PiecePlacementLogType,
   from: number,

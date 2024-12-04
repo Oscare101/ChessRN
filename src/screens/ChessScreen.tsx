@@ -7,6 +7,7 @@ import RenderRowItem from '../components/chess/RenderRowItem';
 import {
   DiagonalMovement,
   IsCellUnderAttack,
+  IsCheckmate,
   IsKingChecked,
   KingMovement,
   KnightMovement,
@@ -123,6 +124,8 @@ export default function ChessScreen() {
       }
       if (IsKingChecked(newMove, step === 'white' ? 'black' : 'white')) {
         console.log('check');
+        if (IsCheckmate(newMove, step === 'white' ? 'black' : 'white')) {
+        }
       }
 
       if (newMove) {
