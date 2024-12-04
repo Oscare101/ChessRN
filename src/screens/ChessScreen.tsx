@@ -22,6 +22,11 @@ export default function ChessScreen() {
     (state: RootState) => state.piecesPlacementLog,
   );
   const [step, setStep] = useState<'white' | 'black'>('white');
+  const [lastMove, setLastMove] = useState<{
+    from: number | null;
+    to: number | null;
+  }>({from: null, to: null});
+
   const [activeCell, setActiveCell] = useState<number | null>();
   const [routeCells, setRouteCells] = useState<number[]>();
   const [castlingInfo, setCastlingInfo] = useState<any>({
@@ -54,6 +59,8 @@ export default function ChessScreen() {
               newActiveCell,
               activePiece,
               piecesPlacementLog[piecesPlacementLog.length - 1],
+              false,
+              lastMove,
             )
           : activePiece.name === 'Rook'
           ? LineMovement(
@@ -110,6 +117,7 @@ export default function ChessScreen() {
         piecesPlacementLog[piecesPlacementLog.length - 1],
         activeCell,
         cell,
+        lastMove,
       );
 
       // Illegal check if my king become under attack
@@ -120,11 +128,14 @@ export default function ChessScreen() {
       }
       if (IsKingChecked(newMove, step === 'white' ? 'black' : 'white')) {
         console.log('check');
-        if (IsCheckmate(newMove, step === 'white' ? 'black' : 'white')) {
+        if (
+          IsCheckmate(newMove, step === 'white' ? 'black' : 'white', lastMove)
+        ) {
         }
       }
 
       if (newMove) {
+        setLastMove({from: activeCell, to: cell});
         dispatch(updatepiecesPlacementLog([...piecesPlacementLog, newMove]));
       }
 
@@ -165,7 +176,7 @@ export default function ChessScreen() {
         backgroundColor: colors.bg,
       }}>
       <Text>
-        {piecesPlacementLog.length} {step}
+        {piecesPlacementLog.length} {step} {lastMove.from}-{lastMove.to}
       </Text>
       <View
         style={{
@@ -185,6 +196,7 @@ export default function ChessScreen() {
               routeCells={routeCells}
               piecesPlacementLog={piecesPlacementLog}
               step={step}
+              lastMove={lastMove}
             />
           )}
         />

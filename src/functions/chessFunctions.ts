@@ -101,6 +101,7 @@ function GetPossibleMoves(
 export function IsCheckmate(
   piecePlacement: PiecePlacementLogType,
   color: 'white' | 'black',
+  lastMove: {from: number | null; to: number | null},
 ): boolean {
   // all my pieces
   const myPieces = Object.entries(piecePlacement).filter(

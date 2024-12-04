@@ -1,4 +1,5 @@
 import {PiecePlacementLogType, PieceType} from '../constants/interfaces';
+import {EnPassant} from './pawnMovement';
 
 // return new piecePlacement after move is done
 
@@ -6,6 +7,7 @@ export function MakeMove(
   piecePlacement: PiecePlacementLogType,
   from: number,
   to: number,
+  lastMove: {from: number | null; to: number | null},
 ) {
   if (
     piecePlacement[from].piece !== undefined &&
@@ -47,6 +49,25 @@ export function MakeMove(
         status: 'occupied',
         piece: {...piece, name: 'Queen'},
       };
+    } else if (
+      lastMove.from &&
+      lastMove.to &&
+      Math.abs(Math.floor(lastMove.to / 8) - Math.floor(lastMove.from / 8)) ===
+        2 && // Opponent pawn moved two squares forward
+      piecePlacement[lastMove.to]?.piece?.name === 'Pawn' &&
+      piecePlacement[lastMove.to]?.piece?.color !==
+        piecePlacement[from]?.piece?.color &&
+      EnPassant(
+        piecePlacement[from]?.piece?.color,
+        piecePlacement,
+        lastMove,
+        Math.floor(from / 8),
+        from % 8,
+      )
+    ) {
+      newPiecePlacement[lastMove.to] = {status: 'free'};
+      newPiecePlacement[from] = {status: 'free'};
+      newPiecePlacement[to] = {status: 'occupied', piece: piece};
     } else {
       newPiecePlacement[from] = {status: 'free'};
       newPiecePlacement[to] = {status: 'occupied', piece: piece};

@@ -28,7 +28,15 @@ export default function RenderCellItem(props: any) {
         width: width * 0.12,
         aspectRatio: 1,
         backgroundColor:
-          props.activeCell === cellIndex
+          props.lastMove.from === cellIndex
+            ? isEven
+              ? colors.piecePointBlack
+              : colors.piecePointWhite
+            : props.lastMove.to === cellIndex
+            ? isEven
+              ? colors.piecePointBlack
+              : colors.piecePointWhite
+            : props.activeCell === cellIndex
             ? isEven
               ? colors.piecePointBlack
               : colors.piecePointWhite
