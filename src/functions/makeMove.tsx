@@ -57,12 +57,14 @@ export function MakeMove(
       piecePlacement[lastMove.to]?.piece?.name === 'Pawn' &&
       piecePlacement[lastMove.to]?.piece?.color !==
         piecePlacement[from]?.piece?.color &&
+      piecePlacement[from].piece.name === 'Pawn' &&
+      Math.floor(from % 8) !== Math.floor(to % 8) &&
       EnPassant(
         piecePlacement[from]?.piece?.color,
         piecePlacement,
         lastMove,
         Math.floor(from / 8),
-        from % 8,
+        Math.floor(from % 8),
       )
     ) {
       newPiecePlacement[lastMove.to] = {status: 'free'};

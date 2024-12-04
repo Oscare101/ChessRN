@@ -181,10 +181,13 @@ export default function ChessScreen() {
         backgroundColor: colors.bg,
       }}>
       <Text>
-        {piecesPlacementLog.length} {step}{' '}
-        {movesHistory[movesHistory.length - 1]?.from}-
-        {movesHistory[movesHistory.length - 1]?.to}
+        {piecesPlacementLog.length} {step} {movesHistory.length}
       </Text>
+      {/* {movesHistory.map((i: any, index: number) => (
+        <Text key={index}>
+          {(index + 1) % 2 === 0 ? 'black' : 'white'} {i.from} - {i.to}
+        </Text>
+      ))} */}
       <View
         style={{
           width: width * 0.12 * 8,
