@@ -1,13 +1,18 @@
-import {Text, TouchableOpacity, Dimensions, View} from 'react-native';
+import {
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  View,
+  ViewStyle,
+} from 'react-native';
 import React from 'react';
 import rules from '../../constants/rules';
 import Icon from '../icons/Icon';
-import {IsCellUnderAttack} from '../../functions/chessFunctions';
 import colors from '../../constants/colors';
 
 const width = Dimensions.get('screen').width;
 
-export default function RenderCellItem(props: any) {
+function RenderCellItem(props: any) {
   const cellIndex: number =
     props.column.index + props.row.index * rules.rows.length;
   const isEven: boolean =
@@ -17,34 +22,40 @@ export default function RenderCellItem(props: any) {
   const cell =
     props.piecesPlacementLog[props.piecesPlacementLog.length - 1][cellIndex];
   const piece = cell?.piece;
+  const kingCheck: boolean =
+    props.check === piece?.color && piece?.name === 'King';
+
+  const cellStyle: ViewStyle = React.useMemo(
+    () => ({
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: width * 0.12,
+      aspectRatio: 1,
+      backgroundColor:
+        props.lastMove.from === cellIndex
+          ? isEven
+            ? colors.piecePointBlack
+            : colors.piecePointWhite
+          : props.lastMove.to === cellIndex
+          ? isEven
+            ? colors.piecePointBlack
+            : colors.piecePointWhite
+          : props.activeCell === cellIndex
+          ? isEven
+            ? colors.piecePointBlack
+            : colors.piecePointWhite
+          : isEven
+          ? colors.cellBlack
+          : colors.cellWhite,
+      transform: props.step === 'black' ? [{rotate: '180deg'}] : [],
+    }),
+    [cellIndex, props.lastMove, props.activeCell, props.step, isEven],
+  );
 
   return (
     <TouchableOpacity
       onPress={() => props.onPress(cellIndex, piece)}
-      // disabled={cell.status === 'free'}
-      style={{
-        alignItems: 'center',
-        justifyContent: 'center',
-        width: width * 0.12,
-        aspectRatio: 1,
-        backgroundColor:
-          props.lastMove.from === cellIndex
-            ? isEven
-              ? colors.piecePointBlack
-              : colors.piecePointWhite
-            : props.lastMove.to === cellIndex
-            ? isEven
-              ? colors.piecePointBlack
-              : colors.piecePointWhite
-            : props.activeCell === cellIndex
-            ? isEven
-              ? colors.piecePointBlack
-              : colors.piecePointWhite
-            : isEven
-            ? colors.cellBlack
-            : colors.cellWhite,
-        transform: props.step === 'black' ? [{rotate: '180deg'}] : [],
-      }}>
+      style={cellStyle}>
       {props.routeCells?.includes(cellIndex) ? (
         props.piecesPlacementLog[props.piecesPlacementLog.length - 1][cellIndex]
           .status === 'free' ? (
@@ -72,18 +83,6 @@ export default function RenderCellItem(props: any) {
       ) : (
         <></>
       )}
-      {/* <Text
-        style={{
-          color: IsCellUnderAttack(
-            cellIndex,
-            props.step,
-            props.piecesPlacementLog[props.piecesPlacementLog.length - 1],
-          )
-            ? 'red'
-            : piece?.color,
-        }}>
-        {cellIndex}
-      </Text> */}
       {piece && piece.name ? (
         <Icon
           name={piece.name}
@@ -98,3 +97,5 @@ export default function RenderCellItem(props: any) {
     </TouchableOpacity>
   );
 }
+
+export default React.memo(RenderCellItem);

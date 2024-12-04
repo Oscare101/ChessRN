@@ -3,7 +3,7 @@ import React from 'react';
 import rules from '../../constants/rules';
 import RenderCellItem from './RenderCellItem';
 
-export default function RenderRowItem(props: any) {
+function RenderRowItem(props: any) {
   return (
     <FlatList
       horizontal
@@ -18,6 +18,7 @@ export default function RenderRowItem(props: any) {
           piecesPlacementLog={props.piecesPlacementLog}
           step={props.step}
           lastMove={props.lastMove}
+          check={props.check}
         />
       )}
     />
@@ -25,3 +26,4 @@ export default function RenderRowItem(props: any) {
 }
 
 const styles = StyleSheet.create({});
+export default React.memo(RenderRowItem);

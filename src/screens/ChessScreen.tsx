@@ -1,5 +1,5 @@
 import {Dimensions, FlatList, StyleSheet, Text, View} from 'react-native';
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../redux';
 import rules from '../constants/rules';
@@ -14,6 +14,8 @@ import {DiagonalMovement} from '../functions/diagonalMovement';
 import {KingMovement} from '../functions/kingMovement';
 import {MakeMove} from '../functions/makeMove';
 import {IsCheckmate, IsKingChecked} from '../functions/chessFunctions';
+import Icon from '../components/icons/Icon';
+import PlayerStatBlock from './PlayerStatBlock';
 
 const width = Dimensions.get('screen').width;
 
@@ -39,6 +41,9 @@ export default function ChessScreen() {
     '56RookMoved': false,
     '63RookMoved': false,
   });
+  const [check, setCheck] = useState<'white' | 'black' | null>(null);
+  const [checkmate, setCheckmate] = useState<'white' | 'black' | null>(null);
+
   const dispatch = useDispatch();
 
   function OnNewPiecePoint(cell: number, activePiece: PieceType['value']) {
@@ -132,8 +137,10 @@ export default function ChessScreen() {
         console.log('illegal move');
         return false;
       }
+      setCheck(null);
       if (IsKingChecked(newMove, step === 'white' ? 'black' : 'white')) {
         console.log('check');
+
         if (
           IsCheckmate(
             newMove,
@@ -141,6 +148,11 @@ export default function ChessScreen() {
             movesHistory[movesHistory.length - 1],
           )
         ) {
+          // checkmate
+          setCheckmate(step === 'white' ? 'black' : 'white');
+        } else {
+          // check
+          setCheck(step === 'white' ? 'black' : 'white');
         }
       }
 
@@ -177,6 +189,13 @@ export default function ChessScreen() {
     OnNewPiecePoint(cell, activePiece);
   }
 
+  const handleCellPress = useCallback(
+    (cell: number, activePiece: any) => {
+      CellAction(cell, activePiece);
+    },
+    [activeCell, routeCells],
+  );
+
   return (
     <View
       style={{
@@ -187,22 +206,12 @@ export default function ChessScreen() {
         gap: (width - width * 0.12 * 8) / 2,
         paddingVertical: (width - width * 0.12 * 8) / 2,
       }}>
-      <View
-        style={{
-          flex: 1,
-          width: width * 0.12 * 8,
-          backgroundColor: step === 'black' ? colors.cellBlack : colors.shadow,
-        }}>
-        <Text>p</Text>
-      </View>
-      {/* <Text>
-        {piecesPlacementLog.length} {step} {movesHistory.length}
-      </Text> */}
-      {/* {movesHistory.map((i: any, index: number) => (
-        <Text key={index}>
-          {(index + 1) % 2 === 0 ? 'black' : 'white'} {i.from} - {i.to}
-        </Text>
-      ))} */}
+      <PlayerStatBlock
+        step={step}
+        takenPieces={takenPieces}
+        playerColor={'black'}
+      />
+
       <View
         style={{
           width: width * 0.12 * 8,
@@ -214,26 +223,28 @@ export default function ChessScreen() {
           renderItem={(item: any) => (
             <RenderRowItem
               row={item}
-              onPress={(cell: number, activePiece: PieceType['value']) => {
-                CellAction(cell, activePiece);
-              }}
+              onPress={handleCellPress}
               activeCell={activeCell}
               routeCells={routeCells}
               piecesPlacementLog={piecesPlacementLog}
               step={step}
               lastMove={movesHistory}
+              check={check}
             />
           )}
+          keyExtractor={(item, index) => index.toString()}
+          getItemLayout={(data, index) => ({
+            length: width * 0.12,
+            offset: width * 0.12 * index,
+            index,
+          })}
         />
       </View>
-      <View
-        style={{
-          flex: 1,
-          width: width * 0.12 * 8,
-          backgroundColor: step === 'white' ? colors.cellWhite : colors.shadow,
-        }}>
-        <Text>p</Text>
-      </View>
+      <PlayerStatBlock
+        step={step}
+        takenPieces={takenPieces}
+        playerColor={'white'}
+      />
     </View>
   );
 }

@@ -16,8 +16,8 @@ export default function Icon(props: {
     Pawn: (
       <SvgXml
         xml={PawnIcon(props.color)}
-        width={props.size * 0.9}
-        height={props.size * 0.9}
+        width={props.size}
+        height={props.size}
       />
     ),
     Rook: (
