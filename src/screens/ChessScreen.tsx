@@ -184,10 +184,20 @@ export default function ChessScreen() {
         justifyContent: 'center',
         flex: 1,
         backgroundColor: colors.bg,
+        gap: (width - width * 0.12 * 8) / 2,
+        paddingVertical: (width - width * 0.12 * 8) / 2,
       }}>
-      <Text>
+      <View
+        style={{
+          flex: 1,
+          width: width * 0.12 * 8,
+          backgroundColor: step === 'black' ? colors.cellBlack : colors.shadow,
+        }}>
+        <Text>p</Text>
+      </View>
+      {/* <Text>
         {piecesPlacementLog.length} {step} {movesHistory.length}
-      </Text>
+      </Text> */}
       {/* {movesHistory.map((i: any, index: number) => (
         <Text key={index}>
           {(index + 1) % 2 === 0 ? 'black' : 'white'} {i.from} - {i.to}
@@ -215,6 +225,14 @@ export default function ChessScreen() {
             />
           )}
         />
+      </View>
+      <View
+        style={{
+          flex: 1,
+          width: width * 0.12 * 8,
+          backgroundColor: step === 'white' ? colors.cellWhite : colors.shadow,
+        }}>
+        <Text>p</Text>
       </View>
     </View>
   );

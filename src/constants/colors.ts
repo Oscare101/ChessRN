@@ -7,4 +7,5 @@ export default {
   piecePointWhite: '#F5F682',
   piecePointBlack: '#B9CA43',
   bg: '#302E2B',
+  shadow: '#474543',
 };
