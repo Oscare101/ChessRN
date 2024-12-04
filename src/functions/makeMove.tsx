@@ -8,7 +8,7 @@ export function MakeMove(
   from: number,
   to: number,
   lastMove: {from: number; to: number} | undefined,
-) {
+): {placement: PiecePlacementLogType; taken: any | PieceType['value']} {
   if (
     piecePlacement[from].piece !== undefined &&
     (piecePlacement[to].status === 'free' ||
@@ -75,7 +75,10 @@ export function MakeMove(
       newPiecePlacement[to] = {status: 'occupied', piece: piece};
     }
 
-    return newPiecePlacement as PiecePlacementLogType;
+    return {
+      placement: newPiecePlacement,
+      taken: piecePlacement[to].piece,
+    };
   }
-  return piecePlacement; // if smth wrong just return
+  return {placement: piecePlacement, taken: null}; // if smth wrong just return
 }

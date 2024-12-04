@@ -21,6 +21,7 @@ export default function ChessScreen() {
   const piecesPlacementLog = useSelector(
     (state: RootState) => state.piecesPlacementLog,
   );
+  const [takenPieces, setTackenPieces] = useState<PieceType['value'][]>([]);
   const [step, setStep] = useState<'white' | 'black'>('white');
   const [movesHistory, setMovesHistory] = useState<
     {
@@ -114,12 +115,16 @@ export default function ChessScreen() {
       typeof activeCell === 'number'
     ) {
       // calculate new move
-      const newMove: PiecePlacementLogType = MakeMove(
+      const makeMoveResults = MakeMove(
         piecesPlacementLog[piecesPlacementLog.length - 1],
         activeCell,
         cell,
         movesHistory[movesHistory.length - 1],
       );
+      if (makeMoveResults.taken) {
+        setTackenPieces([...takenPieces, makeMoveResults.taken]);
+      }
+      const newMove: PiecePlacementLogType = makeMoveResults.placement;
 
       // Illegal check if my king become under attack
       if (IsKingChecked(newMove, step)) {
