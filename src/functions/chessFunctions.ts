@@ -302,6 +302,19 @@ export function IsCellUnderAttack(
   return false;
 }
 
+export function IsKingChecked(
+  piecePlacement: PiecePlacementLogType,
+  color: 'white' | 'black',
+) {
+  const kingIndex = Object.values(piecePlacement).findIndex(
+    (i: any) =>
+      i.status === 'occupied' &&
+      i.piece.name === 'King' &&
+      i.piece.color === color,
+  );
+  return IsCellUnderAttack(kingIndex, color, piecePlacement);
+}
+
 export function MakeMove(
   piecePlacement: PiecePlacementLogType,
   from: number,
@@ -351,6 +364,8 @@ export function MakeMove(
       newPiecePlacement[from] = {status: 'free'};
       newPiecePlacement[to] = {status: 'occupied', piece: piece};
     }
-    return newPiecePlacement;
+
+    return newPiecePlacement as PiecePlacementLogType;
   }
+  return piecePlacement; // if smth wrong just return
 }

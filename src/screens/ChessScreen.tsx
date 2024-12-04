@@ -7,6 +7,7 @@ import RenderRowItem from '../components/chess/RenderRowItem';
 import {
   DiagonalMovement,
   IsCellUnderAttack,
+  IsKingChecked,
   KingMovement,
   KnightMovement,
   LineMovement,
@@ -14,7 +15,7 @@ import {
   PawnMovement,
 } from '../functions/chessFunctions';
 import {updatepiecesPlacementLog} from '../redux/piecesPlacementLog';
-import {PieceType} from '../constants/interfaces';
+import {PiecePlacementLogType, PieceType} from '../constants/interfaces';
 import colors from '../constants/colors';
 
 const width = Dimensions.get('screen').width;
@@ -107,17 +108,30 @@ export default function ChessScreen() {
       routeCells.includes(cell) &&
       typeof activeCell === 'number'
     ) {
-      const newMove = MakeMove(
+      // calculate new move
+      const newMove: PiecePlacementLogType = MakeMove(
         piecesPlacementLog[piecesPlacementLog.length - 1],
         activeCell,
         cell,
       );
+
+      // Illegal check if my king become under attack
+      if (IsKingChecked(newMove, step)) {
+        // TODO illegal move
+        console.log('illegal move');
+        return false;
+      }
+      if (IsKingChecked(newMove, step === 'white' ? 'black' : 'white')) {
+        console.log('check');
+      }
+
       if (newMove) {
         dispatch(updatepiecesPlacementLog([...piecesPlacementLog, newMove]));
       }
 
       const pieceId =
         piecesPlacementLog[piecesPlacementLog.length - 1][activeCell].piece?.id;
+      // is castle pieces moved
       setCastlingInfo({
         whiteKingMoved:
           pieceId === 'WK' ? true : castlingInfo['whiteKingMoved'],
@@ -128,7 +142,7 @@ export default function ChessScreen() {
         '56RookMoved': pieceId === 'BR1' ? true : castlingInfo['56RookMoved'],
         '63RookMoved': pieceId === 'BR2' ? true : castlingInfo['63RookMoved'],
       });
-
+      // change color
       setStep(prev => (prev === 'white' ? 'black' : 'white'));
       setActiveCell(null);
       setRouteCells([]);
