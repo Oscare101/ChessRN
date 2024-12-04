@@ -7,7 +7,7 @@ export function MakeMove(
   piecePlacement: PiecePlacementLogType,
   from: number,
   to: number,
-  lastMove: {from: number | null; to: number | null},
+  lastMove: {from: number; to: number} | undefined,
 ) {
   if (
     piecePlacement[from].piece !== undefined &&
@@ -50,8 +50,8 @@ export function MakeMove(
         piece: {...piece, name: 'Queen'},
       };
     } else if (
-      lastMove.from &&
-      lastMove.to &&
+      lastMove?.from &&
+      lastMove?.to &&
       Math.abs(Math.floor(lastMove.to / 8) - Math.floor(lastMove.from / 8)) ===
         2 && // Opponent pawn moved two squares forward
       piecePlacement[lastMove.to]?.piece?.name === 'Pawn' &&

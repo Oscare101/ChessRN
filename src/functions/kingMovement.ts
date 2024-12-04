@@ -37,7 +37,7 @@ export function KingMovement(
     const emptyPositions = [
       position + direction,
       position + 2 * direction,
-      ...(isKingside ? [] : [position + 3 * direction]), // Для ферзевого боку
+      ...(isKingside ? [] : [position + 3 * direction]), // for queen side
     ];
 
     // check if not used
