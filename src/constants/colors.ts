@@ -4,6 +4,7 @@ export default {
   cellWhite: '#EBECD0',
   cellBlack: '#739552',
   cellPoint: '#00000025',
-  piecePoint: '#D6E664',
+  piecePointWhite: '#F5F682',
+  piecePointBlack: '#B9CA43',
   bg: '#302E2B',
 };
