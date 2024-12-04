@@ -4,20 +4,16 @@ import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../redux';
 import rules from '../constants/rules';
 import RenderRowItem from '../components/chess/RenderRowItem';
-import {
-  DiagonalMovement,
-  IsCellUnderAttack,
-  IsCheckmate,
-  IsKingChecked,
-  KingMovement,
-  KnightMovement,
-  LineMovement,
-  MakeMove,
-  PawnMovement,
-} from '../functions/chessFunctions';
 import {updatepiecesPlacementLog} from '../redux/piecesPlacementLog';
 import {PiecePlacementLogType, PieceType} from '../constants/interfaces';
 import colors from '../constants/colors';
+import {KnightMovement} from '../functions/knightMovement';
+import {PawnMovement} from '../functions/pawnMovement';
+import {LineMovement} from '../functions/lineMovement';
+import {DiagonalMovement} from '../functions/diagonalMovement';
+import {KingMovement} from '../functions/kingMovement';
+import {MakeMove} from '../functions/makeMove';
+import {IsCheckmate, IsKingChecked} from '../functions/chessFunctions';
 
 const width = Dimensions.get('screen').width;
 
