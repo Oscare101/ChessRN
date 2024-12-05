@@ -1,5 +1,5 @@
 import {Dimensions, FlatList, StyleSheet, Text, View} from 'react-native';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../redux';
 import rules from '../constants/rules';
@@ -13,7 +13,11 @@ import {LineMovement} from '../functions/lineMovement';
 import {DiagonalMovement} from '../functions/diagonalMovement';
 import {KingMovement} from '../functions/kingMovement';
 import {MakeMove} from '../functions/makeMove';
-import {IsCheckmate, IsKingChecked} from '../functions/chessFunctions';
+import {
+  IsCheckmate,
+  IsKingChecked,
+  IsStalemate,
+} from '../functions/chessFunctions';
 import Icon from '../components/icons/Icon';
 import PlayerStatBlock from './PlayerStatBlock';
 
@@ -126,9 +130,7 @@ export default function ChessScreen() {
         cell,
         movesHistory[movesHistory.length - 1],
       );
-      if (makeMoveResults.taken) {
-        setTackenPieces([...takenPieces, makeMoveResults.taken]);
-      }
+
       const newMove: PiecePlacementLogType = makeMoveResults.placement;
 
       // Illegal check if my king become under attack
@@ -159,6 +161,9 @@ export default function ChessScreen() {
       if (newMove) {
         setMovesHistory([...movesHistory, {from: activeCell, to: cell}]);
         dispatch(updatepiecesPlacementLog([...piecesPlacementLog, newMove]));
+        if (makeMoveResults.taken) {
+          setTackenPieces([...takenPieces, makeMoveResults.taken]);
+        }
       }
 
       const pieceId =
@@ -195,6 +200,12 @@ export default function ChessScreen() {
     },
     [activeCell, routeCells],
   );
+  useEffect(() => {
+    console.log(
+      'IsStalemate',
+      IsStalemate(piecesPlacementLog[piecesPlacementLog.length - 1], step),
+    );
+  }, [piecesPlacementLog]);
 
   return (
     <View
@@ -228,7 +239,7 @@ export default function ChessScreen() {
               routeCells={routeCells}
               piecesPlacementLog={piecesPlacementLog}
               step={step}
-              lastMove={movesHistory}
+              lastMove={movesHistory[movesHistory.length - 1]}
               check={check}
             />
           )}

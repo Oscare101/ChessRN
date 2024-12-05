@@ -133,3 +133,32 @@ export function IsCheckmate(
   // checkmate
   return true;
 }
+
+export function IsStalemate(
+  piecesPlacement: PiecePlacementLogType,
+  color: 'white' | 'black',
+): boolean {
+  // King is under attack ?
+  if (IsKingChecked(piecesPlacement, color)) {
+    return false; // Якщо король під шахом, це не пат
+  }
+
+  // all possible moves
+  const allMoves: number[] = [];
+  Object.entries(piecesPlacement).forEach(([index, cell]) => {
+    if (
+      cell.status === 'occupied' &&
+      cell.piece.color === color // Фігури гравця
+    ) {
+      const pieceMoves = GetPossibleMoves(
+        parseInt(index),
+        cell.piece,
+        piecesPlacement,
+      );
+      allMoves.push(...pieceMoves);
+    }
+  });
+
+  // Якщо є хоча б один легальний хід, це не пат
+  return allMoves.length === 0;
+}

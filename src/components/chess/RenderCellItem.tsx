@@ -32,11 +32,11 @@ function RenderCellItem(props: any) {
       width: width * 0.12,
       aspectRatio: 1,
       backgroundColor:
-        props.lastMove.from === cellIndex
+        props.lastMove?.from === cellIndex
           ? isEven
             ? colors.piecePointBlack
             : colors.piecePointWhite
-          : props.lastMove.to === cellIndex
+          : props.lastMove?.to === cellIndex
           ? isEven
             ? colors.piecePointBlack
             : colors.piecePointWhite

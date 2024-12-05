@@ -9,6 +9,7 @@ export function MakeMove(
   to: number,
   lastMove: {from: number; to: number} | undefined,
 ): {placement: PiecePlacementLogType; taken: any | PieceType['value']} {
+  let taken = null;
   if (
     piecePlacement[from].piece !== undefined &&
     (piecePlacement[to].status === 'free' ||
@@ -16,6 +17,7 @@ export function MakeMove(
         piecePlacement[to].piece?.color !== piecePlacement[from].piece?.color))
   ) {
     let newPiecePlacement = {...piecePlacement};
+    taken = piecePlacement[to].piece;
     let piece: PieceType['value'] = {...piecePlacement[from]?.piece};
     // castling
     function MoveRookCastle(cellFrom: number, cellTo: number) {
@@ -67,6 +69,7 @@ export function MakeMove(
         Math.floor(from % 8),
       )
     ) {
+      taken = piecePlacement[lastMove.to].piece;
       newPiecePlacement[lastMove.to] = {status: 'free'};
       newPiecePlacement[from] = {status: 'free'};
       newPiecePlacement[to] = {status: 'occupied', piece: piece};
@@ -77,7 +80,7 @@ export function MakeMove(
 
     return {
       placement: newPiecePlacement,
-      taken: piecePlacement[to].piece,
+      taken: taken,
     };
   }
   return {placement: piecePlacement, taken: null}; // if smth wrong just return
