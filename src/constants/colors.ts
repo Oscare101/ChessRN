@@ -1,11 +1,12 @@
 export default {
   pieceWhite: '#F9F9F9',
   pieceBlack: '#474543',
-  cellWhite: '#EBECD0',
-  cellBlack: '#739552',
+  cellWhite: '#F5EEEB',
+  cellBlack: '#964D37',
   cellPoint: '#00000025',
-  piecePointWhite: '#F5F682',
-  piecePointBlack: '#B9CA43',
+  piecePointWhite: '#FDEA68',
+  piecePointBlack: '#FDCE68',
   bg: '#302E2B',
   shadow: '#21201D',
+  error: '#D6473C',
 };

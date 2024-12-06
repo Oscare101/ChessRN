@@ -27,6 +27,7 @@ export default function ChessScreen() {
   const piecesPlacementLog = useSelector(
     (state: RootState) => state.piecesPlacementLog,
   );
+  const [isGameActive, setIsGameActive] = useState<boolean>(true);
   const [takenPieces, setTackenPieces] = useState<PieceType['value'][]>([]);
   const [step, setStep] = useState<'white' | 'black'>('white');
   const [movesHistory, setMovesHistory] = useState<
@@ -152,6 +153,7 @@ export default function ChessScreen() {
         ) {
           // checkmate
           setCheckmate(step === 'white' ? 'black' : 'white');
+          setIsGameActive(false);
         } else {
           // check
           setCheck(step === 'white' ? 'black' : 'white');
@@ -221,8 +223,9 @@ export default function ChessScreen() {
         step={step}
         takenPieces={takenPieces}
         playerColor={'black'}
-        check={check}
-        checkmate={checkmate}
+        check={check === 'black'}
+        checkmate={checkmate === 'black'}
+        isGameActive={isGameActive}
       />
 
       <View
@@ -257,8 +260,9 @@ export default function ChessScreen() {
         step={step}
         takenPieces={takenPieces}
         playerColor={'white'}
-        check={check}
-        checkmate={checkmate}
+        check={check === 'white'}
+        checkmate={checkmate === 'white'}
+        isGameActive={isGameActive}
       />
     </View>
   );
