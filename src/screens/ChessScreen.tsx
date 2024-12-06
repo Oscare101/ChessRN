@@ -221,6 +221,8 @@ export default function ChessScreen() {
         step={step}
         takenPieces={takenPieces}
         playerColor={'black'}
+        check={check}
+        checkmate={checkmate}
       />
 
       <View
@@ -255,6 +257,8 @@ export default function ChessScreen() {
         step={step}
         takenPieces={takenPieces}
         playerColor={'white'}
+        check={check}
+        checkmate={checkmate}
       />
     </View>
   );

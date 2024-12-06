@@ -10,6 +10,8 @@ interface PlayerStatBlockProps {
   step: 'white' | 'black';
   takenPieces: PieceType['value'][];
   playerColor: 'white' | 'black';
+  check: 'white' | 'black' | null;
+  checkmate: 'white' | 'black' | null;
 }
 
 export default function PlayerStatBlock(props: PlayerStatBlockProps) {
@@ -23,10 +25,10 @@ export default function PlayerStatBlock(props: PlayerStatBlockProps) {
             ? props.step === 'white'
               ? colors.cellWhite
               : colors.cellBlack
-            : colors.shadow,
+            : colors.bg,
         borderWidth: width * 0.01,
         // borderRadius: width * 0.02,
-        backgroundColor: colors.shadow,
+        backgroundColor: colors.bg,
         transform: [
           {rotate: props.playerColor === 'white' ? '0deg' : '180deg'},
         ],
@@ -40,14 +42,17 @@ export default function PlayerStatBlock(props: PlayerStatBlockProps) {
         {props.takenPieces
           .filter((i: PieceType['value']) => i.color !== props.playerColor)
           .map((piece: PieceType['value'], index: number) => (
-            <Icon
-              key={index}
-              name={piece.name}
-              size={width * 0.05}
-              color={
-                piece.color === 'white' ? colors.pieceWhite : colors.pieceBlack
-              }
-            />
+            <View key={index} style={{marginRight: -width * 0.03}}>
+              <Icon
+                name={piece.name}
+                size={width * 0.08}
+                color={
+                  piece.color === 'white'
+                    ? colors.pieceWhite
+                    : colors.pieceBlack
+                }
+              />
+            </View>
           ))}
       </View>
     </View>

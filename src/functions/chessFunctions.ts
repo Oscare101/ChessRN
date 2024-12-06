@@ -5,6 +5,7 @@ import {KnightMovement} from './knightMovement';
 import {LineMovement} from './lineMovement';
 import {PawnMovement} from './pawnMovement';
 
+// 100%
 export function IsCellUnderAttack(
   cellIndex: number,
   color: 'white' | 'black',
@@ -37,7 +38,15 @@ export function IsCellUnderAttack(
               ),
               ...LineMovement(+index, placement.piece, piecesPlacement, false),
             ]
-          : LineMovement(+index, placement.piece, piecesPlacement, true); // King
+          : [
+              ...DiagonalMovement(
+                +index,
+                placement.piece,
+                piecesPlacement,
+                true,
+              ),
+              ...LineMovement(+index, placement.piece, piecesPlacement, true),
+            ]; // King
 
       if (possibleMoves.includes(cellIndex)) return true;
     }
@@ -45,6 +54,7 @@ export function IsCellUnderAttack(
   return false;
 }
 
+// 100%
 export function IsKingChecked(
   piecePlacement: PiecePlacementLogType,
   color: 'white' | 'black',
@@ -58,6 +68,7 @@ export function IsKingChecked(
   return IsCellUnderAttack(kingIndex, color, piecePlacement);
 }
 
+// TODO ???????????????
 function SimulateMove(
   piecePlacement: PiecePlacementLogType,
   from: number,
@@ -72,6 +83,7 @@ function SimulateMove(
   return newPlacement;
 }
 
+// TODO ????????????????????
 function GetPossibleMoves(
   position: number,
   piece: PieceType['value'],
@@ -98,6 +110,7 @@ function GetPossibleMoves(
   }
 }
 
+// 100%
 export function IsCheckmate(
   piecePlacement: PiecePlacementLogType,
   color: 'white' | 'black',
@@ -134,6 +147,7 @@ export function IsCheckmate(
   return true;
 }
 
+// TODO ???????????
 export function IsStalemate(
   piecesPlacement: PiecePlacementLogType,
   color: 'white' | 'black',
