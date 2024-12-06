@@ -23,7 +23,7 @@ target 'Chess' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
-  target 'ChessTests' do
+  target 'Chesss' do
     inherit! :complete
     # Pods for testing
   end

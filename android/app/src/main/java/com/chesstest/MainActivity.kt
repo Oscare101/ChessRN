@@ -1,4 +1,4 @@
-package com.chess
+package com.Chess
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
