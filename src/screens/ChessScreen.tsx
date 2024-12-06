@@ -1,4 +1,11 @@
-import {Dimensions, FlatList, StyleSheet, Text, View} from 'react-native';
+import {
+  Dimensions,
+  FlatList,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import React, {useCallback, useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../redux';
@@ -13,10 +20,12 @@ import {LineMovement} from '../functions/lineMovement';
 import {DiagonalMovement} from '../functions/diagonalMovement';
 import {KingMovement} from '../functions/kingMovement';
 import {MakeMove} from '../functions/makeMove';
-import OnlyKingsLeft, {
+import {
   IsCheckmate,
   IsKingChecked,
   IsStalemate,
+  OnlyKingsLeft,
+  SimulateMove,
 } from '../functions/chessFunctions';
 import Icon from '../components/icons/Icon';
 import PlayerStatBlock from './PlayerStatBlock';
@@ -56,14 +65,17 @@ export default function ChessScreen() {
   const dispatch = useDispatch();
 
   function OnNewPiecePoint(cell: number, activePiece: PieceType['value']) {
+    // user tap again -> remove cell from active
     const newActiveCell = activeCell === cell ? null : cell;
+    // save active cell to light it on board
     if (step === activePiece.color) setActiveCell(newActiveCell);
     if (
       activePiece.name &&
       newActiveCell !== null &&
       step === activePiece.color
     ) {
-      setRouteCells(
+      // get routes where the piece can go
+      let newRoutes: number[] =
         activePiece.name === 'Knight'
           ? KnightMovement(
               newActiveCell,
@@ -114,8 +126,21 @@ export default function ChessScreen() {
               piecesPlacementLog[piecesPlacementLog.length - 1],
               castlingInfo,
             )
-          : [],
+          : [];
+      // filter only legal
+      newRoutes = newRoutes.filter(
+        (i: number) =>
+          !IsKingChecked(
+            SimulateMove(
+              piecesPlacementLog[piecesPlacementLog.length - 1],
+              newActiveCell,
+              i,
+              activePiece,
+            ),
+            step,
+          ),
       );
+      setRouteCells(newRoutes);
     } else {
       setActiveCell(null);
       setRouteCells([]);
@@ -128,6 +153,8 @@ export default function ChessScreen() {
       routeCells.includes(cell) &&
       typeof activeCell === 'number'
     ) {
+      //if user tap on pieces route to move it
+
       // calculate new move
       const makeMoveResults = MakeMove(
         piecesPlacementLog[piecesPlacementLog.length - 1],
@@ -135,19 +162,16 @@ export default function ChessScreen() {
         cell,
         movesHistory[movesHistory.length - 1],
       );
-
+      // new piece placement after move
       const newMove: PiecePlacementLogType = makeMoveResults.placement;
 
       // Illegal check if my king become under attack
       if (IsKingChecked(newMove, step)) {
         // TODO illegal move
-        console.log('illegal move');
         return false;
       }
       setCheck(null);
       if (IsKingChecked(newMove, step === 'white' ? 'black' : 'white')) {
-        console.log('check');
-
         if (
           IsCheckmate(
             newMove,
@@ -170,7 +194,7 @@ export default function ChessScreen() {
         setGameResult('draw');
         setIsGameActive(false);
       }
-
+      // save new piece placement + write history
       if (newMove) {
         setMovesHistory([...movesHistory, {from: activeCell, to: cell}]);
         dispatch(updatepiecesPlacementLog([...piecesPlacementLog, newMove]));
@@ -192,7 +216,7 @@ export default function ChessScreen() {
         '56RookMoved': pieceId === 'BR1' ? true : castlingInfo['56RookMoved'],
         '63RookMoved': pieceId === 'BR2' ? true : castlingInfo['63RookMoved'],
       });
-      // change color
+      // change color for new player
       setStep(prev => (prev === 'white' ? 'black' : 'white'));
       setActiveCell(null);
       setRouteCells([]);
@@ -200,6 +224,7 @@ export default function ChessScreen() {
     } else if (
       piecesPlacementLog[piecesPlacementLog.length - 1][cell].status === 'free'
     ) {
+      // user tap on ampty board -> remove cell from active + clear shown routes
       setActiveCell(null);
       setRouteCells([]);
       return;
@@ -213,15 +238,6 @@ export default function ChessScreen() {
     },
     [activeCell, routeCells],
   );
-  useEffect(() => {
-    console.log(
-      'IsStalemate',
-      IsStalemate(piecesPlacementLog[piecesPlacementLog.length - 1], step),
-    );
-  }, [piecesPlacementLog]);
-  useEffect(() => {
-    console.log('routes', routeCells);
-  }, [routeCells]);
 
   return (
     <View
@@ -233,6 +249,7 @@ export default function ChessScreen() {
         gap: (width - width * 0.12 * 8) / 2,
         paddingVertical: (width - width * 0.12 * 8) / 2,
       }}>
+      <StatusBar backgroundColor={colors.bg} barStyle={'light-content'} />
       <PlayerStatBlock
         step={step}
         takenPieces={takenPieces}

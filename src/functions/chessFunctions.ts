@@ -9,7 +9,6 @@ import {KnightMovement} from './knightMovement';
 import {LineMovement} from './lineMovement';
 import {PawnMovement} from './pawnMovement';
 
-// 100%
 export function IsCellUnderAttack(
   cellIndex: number,
   color: 'white' | 'black',
@@ -58,7 +57,6 @@ export function IsCellUnderAttack(
   return false;
 }
 
-// 100%
 export function IsKingChecked(
   piecePlacement: PiecePlacementLogType,
   color: 'white' | 'black',
@@ -72,8 +70,8 @@ export function IsKingChecked(
   return IsCellUnderAttack(kingIndex, color, piecePlacement);
 }
 
-// TODO ???????????????
-function SimulateMove(
+// simulate move (used for checking illegal moves checking)
+export function SimulateMove(
   piecePlacement: PiecePlacementLogType,
   from: number,
   to: number,
@@ -87,7 +85,6 @@ function SimulateMove(
   return newPlacement;
 }
 
-// TODO ????????????????????
 function GetPossibleMoves(
   position: number,
   piece: PieceType['value'],
@@ -114,7 +111,7 @@ function GetPossibleMoves(
   }
 }
 
-// 100%
+// is check
 export function IsCheckmate(
   piecePlacement: PiecePlacementLogType,
   color: 'white' | 'black',
@@ -151,23 +148,20 @@ export function IsCheckmate(
   return true;
 }
 
-// TODO ???????????
+// is stalemate
 export function IsStalemate(
   piecesPlacement: PiecePlacementLogType,
   color: 'white' | 'black',
 ): boolean {
   // King is under attack ?
   if (IsKingChecked(piecesPlacement, color)) {
-    return false; // Якщо король під шахом, це не пат
+    return false; // if king is under attack
   }
 
   // all possible moves
   const allMoves: number[] = [];
   Object.entries(piecesPlacement).forEach(([index, cell]) => {
-    if (
-      cell.status === 'occupied' &&
-      cell.piece.color === color // Фігури гравця
-    ) {
+    if (cell.status === 'occupied' && cell.piece.color === color) {
       const pieceMoves = GetPossibleMoves(
         parseInt(index),
         cell.piece,
@@ -177,11 +171,12 @@ export function IsStalemate(
     }
   });
 
-  // Якщо є хоча б один легальний хід, це не пат
+  // if at least sigle move is legal -> not a stalemate
   return allMoves.length === 0;
 }
 
-export default function OnlyKingsLeft(piecePlacement: PiecePlacementLogType) {
+// if only two kings left on board -> draw
+export function OnlyKingsLeft(piecePlacement: PiecePlacementLogType) {
   const piecesLeft = Object.values(piecePlacement).filter(
     (i: PiecePlacementType) => i.status === 'occupied',
   ).length;
