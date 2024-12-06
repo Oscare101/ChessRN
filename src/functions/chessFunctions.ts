@@ -1,4 +1,8 @@
-import {PiecePlacementLogType, PieceType} from '../constants/interfaces';
+import {
+  PiecePlacementLogType,
+  PiecePlacementType,
+  PieceType,
+} from '../constants/interfaces';
 import {DiagonalMovement} from './diagonalMovement';
 import {KingMovement} from './kingMovement';
 import {KnightMovement} from './knightMovement';
@@ -175,4 +179,11 @@ export function IsStalemate(
 
   // Якщо є хоча б один легальний хід, це не пат
   return allMoves.length === 0;
+}
+
+export default function OnlyKingsLeft(piecePlacement: PiecePlacementLogType) {
+  const piecesLeft = Object.values(piecePlacement).filter(
+    (i: PiecePlacementType) => i.status === 'occupied',
+  ).length;
+  return piecesLeft === 2;
 }

@@ -13,7 +13,7 @@ import {LineMovement} from '../functions/lineMovement';
 import {DiagonalMovement} from '../functions/diagonalMovement';
 import {KingMovement} from '../functions/kingMovement';
 import {MakeMove} from '../functions/makeMove';
-import {
+import OnlyKingsLeft, {
   IsCheckmate,
   IsKingChecked,
   IsStalemate,
@@ -27,6 +27,10 @@ export default function ChessScreen() {
   const piecesPlacementLog = useSelector(
     (state: RootState) => state.piecesPlacementLog,
   );
+  const [gameResult, setGameResult] = useState<
+    'draw' | 'white' | 'black' | null
+  >(null);
+
   const [isGameActive, setIsGameActive] = useState<boolean>(true);
   const [takenPieces, setTackenPieces] = useState<PieceType['value'][]>([]);
   const [step, setStep] = useState<'white' | 'black'>('white');
@@ -152,12 +156,19 @@ export default function ChessScreen() {
           )
         ) {
           // checkmate
+          setGameResult(step);
           setCheckmate(step === 'white' ? 'black' : 'white');
           setIsGameActive(false);
         } else {
           // check
           setCheck(step === 'white' ? 'black' : 'white');
         }
+      } else if (
+        IsStalemate(newMove, step === 'white' ? 'black' : 'white') ||
+        OnlyKingsLeft(newMove)
+      ) {
+        setGameResult('draw');
+        setIsGameActive(false);
       }
 
       if (newMove) {
@@ -208,6 +219,9 @@ export default function ChessScreen() {
       IsStalemate(piecesPlacementLog[piecesPlacementLog.length - 1], step),
     );
   }, [piecesPlacementLog]);
+  useEffect(() => {
+    console.log('routes', routeCells);
+  }, [routeCells]);
 
   return (
     <View
@@ -226,6 +240,7 @@ export default function ChessScreen() {
         check={check === 'black'}
         checkmate={checkmate === 'black'}
         isGameActive={isGameActive}
+        gameResult={gameResult}
       />
 
       <View
@@ -263,6 +278,7 @@ export default function ChessScreen() {
         check={check === 'white'}
         checkmate={checkmate === 'white'}
         isGameActive={isGameActive}
+        gameResult={gameResult}
       />
     </View>
   );

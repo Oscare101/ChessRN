@@ -13,6 +13,7 @@ interface PlayerStatBlockProps {
   check: boolean;
   checkmate: boolean;
   isGameActive: boolean;
+  gameResult: 'draw' | 'white' | 'black' | null;
 }
 
 export default function PlayerStatBlock(props: PlayerStatBlockProps) {
@@ -21,13 +22,14 @@ export default function PlayerStatBlock(props: PlayerStatBlockProps) {
       style={{
         flex: 1,
         width: width * 0.12 * 8,
-        borderColor: props.isGameActive
-          ? props.step === props.playerColor
-            ? props.step === 'white'
-              ? colors.cellWhite
-              : colors.cellBlack
-            : colors.bg
-          : colors.bg,
+        borderColor:
+          props.isGameActive && !props.gameResult
+            ? props.step === props.playerColor
+              ? props.step === 'white'
+                ? colors.cellWhite
+                : colors.cellBlack
+              : colors.bg
+            : colors.bg,
         borderWidth: width * 0.01,
         // borderRadius: width * 0.02,
         backgroundColor: colors.bg,
@@ -65,15 +67,29 @@ export default function PlayerStatBlock(props: PlayerStatBlockProps) {
       </View>
 
       {props.check ? (
-        <View style={styles.checkBlock}>
-          <Text style={styles.checkTitle}>Check</Text>
+        <View style={styles.block}>
+          <Text style={styles.title}>Check</Text>
         </View>
       ) : (
         <></>
       )}
       {props.checkmate ? (
-        <View style={styles.checkmateBlock}>
-          <Text style={styles.checkmateTitle}>Checkmate</Text>
+        <View style={[styles.block, {backgroundColor: colors.error}]}>
+          <Text style={styles.title}>Checkmate</Text>
+        </View>
+      ) : (
+        <></>
+      )}
+      {props.gameResult === 'draw' ? (
+        <View style={[styles.block, {backgroundColor: colors.warning}]}>
+          <Text style={styles.title}>{props.gameResult}</Text>
+        </View>
+      ) : (
+        <></>
+      )}
+      {props.gameResult === props.playerColor ? (
+        <View style={[styles.block, {backgroundColor: colors.success}]}>
+          <Text style={styles.title}>WIN</Text>
         </View>
       ) : (
         <></>
@@ -83,7 +99,7 @@ export default function PlayerStatBlock(props: PlayerStatBlockProps) {
 }
 
 const styles = StyleSheet.create({
-  checkBlock: {
+  block: {
     padding: width * 0.02,
     paddingHorizontal: width * 0.05,
     backgroundColor: colors.piecePointBlack,
@@ -92,15 +108,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'center',
   },
-  checkmateBlock: {
-    padding: width * 0.02,
-    paddingHorizontal: width * 0.05,
-    backgroundColor: colors.error,
-    borderRadius: width * 0.022,
-    alignItems: 'center',
-    justifyContent: 'center',
-    alignSelf: 'center',
-  },
-  checkTitle: {fontSize: width * 0.05, color: colors.bg},
-  checkmateTitle: {fontSize: width * 0.05, color: colors.bg},
+
+  title: {fontSize: width * 0.05, color: colors.bg},
 });
