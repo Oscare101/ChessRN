@@ -1,4 +1,10 @@
-import {Dimensions, StyleSheet, Text, View} from 'react-native';
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React from 'react';
 import colors from '../constants/colors';
 import {GameStatInterface, PieceType} from '../constants/interfaces';
@@ -19,13 +25,23 @@ interface PlayerStatBlockProps {
 export default function PlayerStatBlock(props: {
   gameStat: GameStatInterface;
   playerColor: 'white' | 'black';
+  time: number;
+  startTime: number;
+  increment: number;
+  onStart: any;
 }) {
+  function formatTime(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+  }
+
   return (
     <View
       style={{
         flex: 1,
         width: width * 0.12 * 8,
-        borderColor: !props.gameStat.gameResult
+        borderColor: props.gameStat.isGameActive
           ? props.gameStat.step === props.playerColor
             ? props.gameStat.step === 'white'
               ? colors.cellWhite
@@ -67,9 +83,23 @@ export default function PlayerStatBlock(props: {
             </View>
           ))}
       </View>
+      {!props.gameStat.isGameActive && props.playerColor === 'black' ? (
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => {
+            props.onStart(!props.gameStat.gameResult);
+          }}
+          style={styles.block}>
+          <Text style={[styles.title, {color: colors.cellWhite}]}>
+            {props.gameStat.gameResult ? 'RESET' : 'START'}
+          </Text>
+        </TouchableOpacity>
+      ) : (
+        <></>
+      )}
 
       {props.gameStat.check === props.playerColor ? (
-        <View style={styles.block}>
+        <View style={[styles.block, {backgroundColor: colors.piecePointBlack}]}>
           <Text style={styles.title}>Check</Text>
         </View>
       ) : (
@@ -96,6 +126,29 @@ export default function PlayerStatBlock(props: {
       ) : (
         <></>
       )}
+
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}>
+        <View
+          style={[
+            styles.block,
+            {
+              backgroundColor:
+                props.playerColor === 'white'
+                  ? colors.cellWhite
+                  : colors.cellBlack,
+            },
+          ]}>
+          <Text style={[styles.title, {fontWeight: 900}]}>
+            {formatTime(props.time)}{' '}
+            <Text style={{fontWeight: 400}}>(+{props.increment})</Text>
+          </Text>
+        </View>
+      </View>
     </View>
   );
 }
@@ -104,7 +157,6 @@ const styles = StyleSheet.create({
   block: {
     padding: width * 0.02,
     paddingHorizontal: width * 0.05,
-    backgroundColor: colors.piecePointBlack,
     borderRadius: width * 0.022,
     alignItems: 'center',
     justifyContent: 'center',

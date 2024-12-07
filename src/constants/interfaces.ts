@@ -42,4 +42,5 @@ export interface GameStatInterface {
     '63RookMoved': boolean;
   };
   piecesPlacementLog: PiecePlacementLogArrayType;
+  isGameActive: boolean;
 }

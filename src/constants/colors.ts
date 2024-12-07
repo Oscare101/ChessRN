@@ -10,5 +10,5 @@ export default {
   shadow: '#21201D',
   error: '#D6473C',
   warning: '#FDEA68',
-  success: '#739552',
+  success: '#81B64C',
 };

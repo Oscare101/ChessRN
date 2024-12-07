@@ -1,5 +1,5 @@
 import {Dimensions, FlatList, StatusBar, StyleSheet, View} from 'react-native';
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {useDispatch} from 'react-redux';
 import rules from '../constants/rules';
 import RenderRowItem from '../components/chess/RenderRowItem';
@@ -27,28 +27,62 @@ import startPiecePlacement from '../constants/StartPiecePlacement';
 
 const width = Dimensions.get('screen').width;
 
-export default function ChessScreen() {
-  const [gameStat, setGameStat] = useState<GameStatInterface>({
-    gameResult: null,
-    check: null,
-    checkmate: null,
-    takenPieces: [],
-    step: 'white',
-    movesHistory: [],
-    activeCell: null,
-    routeCells: [],
-    castlingInfo: {
-      whiteKingMoved: false,
-      '0RookMoved': false,
-      '7RookMoved': false,
-      blackKingMoved: false,
-      '56RookMoved': false,
-      '63RookMoved': false,
-    },
-    piecesPlacementLog: startPiecePlacement,
-  });
+const startTime = 300;
+const increment = 2;
 
-  const dispatch = useDispatch();
+const startPositions: GameStatInterface = {
+  gameResult: null,
+  check: null,
+  checkmate: null,
+  takenPieces: [],
+  step: 'white',
+  movesHistory: [],
+  activeCell: null,
+  routeCells: [],
+  castlingInfo: {
+    whiteKingMoved: false,
+    '0RookMoved': false,
+    '7RookMoved': false,
+    blackKingMoved: false,
+    '56RookMoved': false,
+    '63RookMoved': false,
+  },
+  piecesPlacementLog: startPiecePlacement,
+  isGameActive: false,
+};
+
+export default function ChessScreen() {
+  const [gameStat, setGameStat] = useState<GameStatInterface>(startPositions);
+
+  const [whiteTime, setWhiteTime] = useState<number>(startTime);
+  const [blackTime, setBlackTime] = useState<number>(startTime);
+
+  const timerRef: any = useRef<NodeJS.Timer | null>(null);
+
+  useEffect(() => {
+    if (gameStat.step && gameStat.isGameActive) {
+      timerRef.current = setInterval(() => {
+        if (gameStat.step === 'white') {
+          setWhiteTime(prev => Math.max(0, prev - 1));
+        } else {
+          setBlackTime(prev => Math.max(0, prev - 1));
+        }
+      }, 1000);
+    }
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [gameStat.step, gameStat.isGameActive]);
+
+  function onPlayerMove() {
+    if (gameStat.step === 'white') {
+      setWhiteTime(prev => prev + increment);
+    } else {
+      setBlackTime(prev => prev + increment);
+    }
+
+    if (timerRef.current) clearInterval(timerRef.current);
+  }
 
   function OnNewPiecePoint(cell: number, activePiece: PieceType['value']) {
     // user tap again -> remove cell from active
@@ -190,6 +224,7 @@ export default function ChessScreen() {
             ...prev,
             checkmate: prev.step === 'white' ? 'black' : 'white',
             gameResult: prev.step,
+            isGameActive: false,
           }));
         } else {
           // check
@@ -205,6 +240,7 @@ export default function ChessScreen() {
         setGameStat(prev => ({
           ...prev,
           gameResult: 'draw',
+          isGameActive: false,
         }));
       }
       // save new piece placement + write history
@@ -220,6 +256,7 @@ export default function ChessScreen() {
             ? [...prev.takenPieces, makeMoveResults.taken]
             : prev.takenPieces,
         }));
+        onPlayerMove();
       }
 
       const pieceId =
@@ -270,6 +307,26 @@ export default function ChessScreen() {
     [gameStat.activeCell, gameStat.routeCells],
   );
 
+  useEffect(() => {
+    if (whiteTime === 0) {
+      setGameStat(prev => ({
+        ...prev,
+        gameResult: 'black',
+        activeCell: null,
+        routeCells: [],
+        isGameActive: false,
+      }));
+    } else if (blackTime === 0) {
+      setGameStat(prev => ({
+        ...prev,
+        gameResult: 'white',
+        activeCell: null,
+        routeCells: [],
+        isGameActive: false,
+      }));
+    }
+  }, [whiteTime, blackTime]);
+
   return (
     <View
       style={{
@@ -282,15 +339,16 @@ export default function ChessScreen() {
       }}>
       <StatusBar backgroundColor={colors.bg} barStyle={'light-content'} />
       <PlayerStatBlock
-        // step={step}
-        // takenPieces={takenPieces}
-        // playerColor={'black'}
-        // check={check === 'black'}
-        // checkmate={checkmate === 'black'}
-        // isGameActive={isGameActive}
-        // gameResult={gameResult}
         gameStat={gameStat}
         playerColor="black"
+        time={blackTime}
+        startTime={startTime}
+        increment={increment}
+        onStart={(start: boolean) => {
+          setGameStat({...startPositions, isGameActive: start});
+          setWhiteTime(startTime);
+          setBlackTime(startTime);
+        }}
       />
 
       <View
@@ -322,7 +380,14 @@ export default function ChessScreen() {
           })}
         />
       </View>
-      <PlayerStatBlock gameStat={gameStat} playerColor="white" />
+      <PlayerStatBlock
+        gameStat={gameStat}
+        playerColor="white"
+        time={whiteTime}
+        startTime={startTime}
+        increment={increment}
+        onStart={() => {}}
+      />
     </View>
   );
 }

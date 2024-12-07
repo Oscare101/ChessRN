@@ -64,7 +64,7 @@ function RenderCellItem(props: {
   return (
     <TouchableOpacity
       onPress={() => props.onPress(cellIndex, piece)}
-      disabled={!!props.gameStat.gameResult}
+      disabled={!!props.gameStat.gameResult || !props.gameStat.isGameActive}
       style={cellStyle}>
       {props.gameStat.routeCells?.includes(cellIndex) ? (
         props.gameStat.piecesPlacementLog[
