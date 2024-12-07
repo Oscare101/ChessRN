@@ -20,3 +20,26 @@ export type PiecePlacementLogArrayType = Array<PiecePlacementLogType>;
 export interface IconName {
   value: 'Knight' | 'King' | 'Queen' | 'Pawn' | 'Bishop' | 'Rook';
 }
+
+export interface GameStatInterface {
+  gameResult: 'draw' | 'white' | 'black' | null;
+  check: 'white' | 'black' | null;
+  checkmate: 'white' | 'black' | null;
+  takenPieces: PieceType['value'][];
+  step: 'white' | 'black';
+  movesHistory: {
+    from: number;
+    to: number;
+  }[];
+  activeCell: number | null;
+  routeCells: number[];
+  castlingInfo: {
+    whiteKingMoved: boolean;
+    '0RookMoved': boolean;
+    '7RookMoved': boolean;
+    blackKingMoved: boolean;
+    '56RookMoved': boolean;
+    '63RookMoved': boolean;
+  };
+  piecesPlacementLog: PiecePlacementLogArrayType;
+}

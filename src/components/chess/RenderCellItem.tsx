@@ -1,18 +1,18 @@
-import {
-  Text,
-  TouchableOpacity,
-  Dimensions,
-  View,
-  ViewStyle,
-} from 'react-native';
+import {TouchableOpacity, Dimensions, View, ViewStyle} from 'react-native';
 import React from 'react';
 import rules from '../../constants/rules';
 import Icon from '../icons/Icon';
 import colors from '../../constants/colors';
+import {GameStatInterface} from '../../constants/interfaces';
 
 const width = Dimensions.get('screen').width;
 
-function RenderCellItem(props: any) {
+function RenderCellItem(props: {
+  column: any;
+  row: any;
+  onPress: any;
+  gameStat: GameStatInterface;
+}) {
   const cellIndex: number =
     props.column.index + props.row.index * rules.rows.length;
   const isEven: boolean =
@@ -20,10 +20,13 @@ function RenderCellItem(props: any) {
     (props.column.index % 2 === 1 && props.row.index % 2 === 1);
 
   const cell =
-    props.piecesPlacementLog[props.piecesPlacementLog.length - 1][cellIndex];
+    props.gameStat.piecesPlacementLog[
+      props.gameStat.piecesPlacementLog.length - 1
+    ][cellIndex];
   const piece = cell?.piece;
-  const kingCheck: boolean =
-    props.check === piece?.color && piece?.name === 'King';
+
+  const lastMove =
+    props.gameStat.movesHistory[props.gameStat.movesHistory.length - 1];
 
   const cellStyle: ViewStyle = React.useMemo(
     () => ({
@@ -32,33 +35,41 @@ function RenderCellItem(props: any) {
       width: width * 0.12,
       aspectRatio: 1,
       backgroundColor:
-        props.lastMove?.from === cellIndex
+        lastMove?.from === cellIndex
           ? isEven
             ? colors.piecePointBlack
             : colors.piecePointWhite
-          : props.lastMove?.to === cellIndex
+          : lastMove?.to === cellIndex
           ? isEven
             ? colors.piecePointBlack
             : colors.piecePointWhite
-          : props.activeCell === cellIndex
+          : props.gameStat.activeCell === cellIndex
           ? isEven
             ? colors.piecePointBlack
             : colors.piecePointWhite
           : isEven
           ? colors.cellBlack
           : colors.cellWhite,
-      transform: props.step === 'black' ? [{rotate: '180deg'}] : [],
+      transform: props.gameStat.step === 'black' ? [{rotate: '180deg'}] : [],
     }),
-    [cellIndex, props.lastMove, props.activeCell, props.step, isEven],
+    [
+      cellIndex,
+      lastMove,
+      props.gameStat.activeCell,
+      props.gameStat.step,
+      isEven,
+    ],
   );
 
   return (
     <TouchableOpacity
       onPress={() => props.onPress(cellIndex, piece)}
+      disabled={!!props.gameStat.gameResult}
       style={cellStyle}>
-      {props.routeCells?.includes(cellIndex) ? (
-        props.piecesPlacementLog[props.piecesPlacementLog.length - 1][cellIndex]
-          .status === 'free' ? (
+      {props.gameStat.routeCells?.includes(cellIndex) ? (
+        props.gameStat.piecesPlacementLog[
+          props.gameStat.piecesPlacementLog.length - 1
+        ][cellIndex].status === 'free' ? (
           <View
             style={{
               width: '40%',

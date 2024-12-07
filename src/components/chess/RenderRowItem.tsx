@@ -13,12 +13,13 @@ function RenderRowItem(props: any) {
           column={item}
           row={props.row}
           onPress={props.onPress}
-          activeCell={props.activeCell}
-          routeCells={props.routeCells}
-          piecesPlacementLog={props.piecesPlacementLog}
-          step={props.step}
-          lastMove={props.lastMove}
-          check={props.check}
+          // activeCell={props.activeCell}
+          // routeCells={props.routeCells}
+          // piecesPlacementLog={props.piecesPlacementLog}
+          // step={props.step}
+          // lastMove={props.lastMove}
+          // check={props.check}
+          gameStat={props.gameStat}
         />
       )}
     />

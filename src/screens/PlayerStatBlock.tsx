@@ -1,7 +1,7 @@
 import {Dimensions, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import colors from '../constants/colors';
-import {PieceType} from '../constants/interfaces';
+import {GameStatInterface, PieceType} from '../constants/interfaces';
 import Icon from '../components/icons/Icon';
 
 const width = Dimensions.get('screen').width;
@@ -16,20 +16,22 @@ interface PlayerStatBlockProps {
   gameResult: 'draw' | 'white' | 'black' | null;
 }
 
-export default function PlayerStatBlock(props: PlayerStatBlockProps) {
+export default function PlayerStatBlock(props: {
+  gameStat: GameStatInterface;
+  playerColor: 'white' | 'black';
+}) {
   return (
     <View
       style={{
         flex: 1,
         width: width * 0.12 * 8,
-        borderColor:
-          props.isGameActive && !props.gameResult
-            ? props.step === props.playerColor
-              ? props.step === 'white'
-                ? colors.cellWhite
-                : colors.cellBlack
-              : colors.bg
-            : colors.bg,
+        borderColor: !props.gameStat.gameResult
+          ? props.gameStat.step === props.playerColor
+            ? props.gameStat.step === 'white'
+              ? colors.cellWhite
+              : colors.cellBlack
+            : colors.bg
+          : colors.bg,
         borderWidth: width * 0.01,
         // borderRadius: width * 0.02,
         backgroundColor: colors.bg,
@@ -49,7 +51,7 @@ export default function PlayerStatBlock(props: PlayerStatBlockProps) {
           width: '100%',
           // flex: 1,
         }}>
-        {props.takenPieces
+        {props.gameStat.takenPieces
           .filter((i: PieceType['value']) => i.color !== props.playerColor)
           .map((piece: PieceType['value'], index: number) => (
             <View key={index} style={{marginRight: -width * 0.03}}>
@@ -66,28 +68,28 @@ export default function PlayerStatBlock(props: PlayerStatBlockProps) {
           ))}
       </View>
 
-      {props.check ? (
+      {props.gameStat.check === props.playerColor ? (
         <View style={styles.block}>
           <Text style={styles.title}>Check</Text>
         </View>
       ) : (
         <></>
       )}
-      {props.checkmate ? (
+      {props.gameStat.checkmate === props.playerColor ? (
         <View style={[styles.block, {backgroundColor: colors.error}]}>
           <Text style={styles.title}>Checkmate</Text>
         </View>
       ) : (
         <></>
       )}
-      {props.gameResult === 'draw' ? (
+      {props.gameStat.gameResult === 'draw' ? (
         <View style={[styles.block, {backgroundColor: colors.warning}]}>
-          <Text style={styles.title}>{props.gameResult}</Text>
+          <Text style={styles.title}>{props.gameStat.gameResult}</Text>
         </View>
       ) : (
         <></>
       )}
-      {props.gameResult === props.playerColor ? (
+      {props.gameStat.gameResult === props.playerColor ? (
         <View style={[styles.block, {backgroundColor: colors.success}]}>
           <Text style={styles.title}>WIN</Text>
         </View>

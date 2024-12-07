@@ -1,18 +1,13 @@
-import {
-  Dimensions,
-  FlatList,
-  StatusBar,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
-import React, {useCallback, useEffect, useState} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
-import {RootState} from '../redux';
+import {Dimensions, FlatList, StatusBar, StyleSheet, View} from 'react-native';
+import React, {useCallback, useState} from 'react';
+import {useDispatch} from 'react-redux';
 import rules from '../constants/rules';
 import RenderRowItem from '../components/chess/RenderRowItem';
-import {updatepiecesPlacementLog} from '../redux/piecesPlacementLog';
-import {PiecePlacementLogType, PieceType} from '../constants/interfaces';
+import {
+  GameStatInterface,
+  PiecePlacementLogType,
+  PieceType,
+} from '../constants/interfaces';
 import colors from '../constants/colors';
 import {KnightMovement} from '../functions/knightMovement';
 import {PawnMovement} from '../functions/pawnMovement';
@@ -27,52 +22,45 @@ import {
   OnlyKingsLeft,
   SimulateMove,
 } from '../functions/chessFunctions';
-import Icon from '../components/icons/Icon';
 import PlayerStatBlock from './PlayerStatBlock';
+import startPiecePlacement from '../constants/StartPiecePlacement';
 
 const width = Dimensions.get('screen').width;
 
 export default function ChessScreen() {
-  const piecesPlacementLog = useSelector(
-    (state: RootState) => state.piecesPlacementLog,
-  );
-  const [gameResult, setGameResult] = useState<
-    'draw' | 'white' | 'black' | null
-  >(null);
-
-  const [isGameActive, setIsGameActive] = useState<boolean>(true);
-  const [takenPieces, setTackenPieces] = useState<PieceType['value'][]>([]);
-  const [step, setStep] = useState<'white' | 'black'>('white');
-  const [movesHistory, setMovesHistory] = useState<
-    {
-      from: number;
-      to: number;
-    }[]
-  >([]);
-  const [activeCell, setActiveCell] = useState<number | null>();
-  const [routeCells, setRouteCells] = useState<number[]>();
-  const [castlingInfo, setCastlingInfo] = useState<any>({
-    whiteKingMoved: false,
-    '0RookMoved': false,
-    '7RookMoved': false,
-    blackKingMoved: false,
-    '56RookMoved': false,
-    '63RookMoved': false,
+  const [gameStat, setGameStat] = useState<GameStatInterface>({
+    gameResult: null,
+    check: null,
+    checkmate: null,
+    takenPieces: [],
+    step: 'white',
+    movesHistory: [],
+    activeCell: null,
+    routeCells: [],
+    castlingInfo: {
+      whiteKingMoved: false,
+      '0RookMoved': false,
+      '7RookMoved': false,
+      blackKingMoved: false,
+      '56RookMoved': false,
+      '63RookMoved': false,
+    },
+    piecesPlacementLog: startPiecePlacement,
   });
-  const [check, setCheck] = useState<'white' | 'black' | null>(null);
-  const [checkmate, setCheckmate] = useState<'white' | 'black' | null>(null);
 
   const dispatch = useDispatch();
 
   function OnNewPiecePoint(cell: number, activePiece: PieceType['value']) {
     // user tap again -> remove cell from active
-    const newActiveCell = activeCell === cell ? null : cell;
+    const newActiveCell = gameStat.activeCell === cell ? null : cell;
     // save active cell to light it on board
-    if (step === activePiece.color) setActiveCell(newActiveCell);
+    if (gameStat.step === activePiece.color) {
+      setGameStat(prev => ({...prev, activeCell: newActiveCell}));
+    }
     if (
       activePiece.name &&
       newActiveCell !== null &&
-      step === activePiece.color
+      gameStat.step === activePiece.color
     ) {
       // get routes where the piece can go
       let newRoutes: number[] =
@@ -80,28 +68,36 @@ export default function ChessScreen() {
           ? KnightMovement(
               newActiveCell,
               activePiece,
-              piecesPlacementLog[piecesPlacementLog.length - 1],
+              gameStat.piecesPlacementLog[
+                gameStat.piecesPlacementLog.length - 1
+              ],
             )
           : activePiece.name === 'Pawn'
           ? PawnMovement(
               newActiveCell,
               activePiece,
-              piecesPlacementLog[piecesPlacementLog.length - 1],
+              gameStat.piecesPlacementLog[
+                gameStat.piecesPlacementLog.length - 1
+              ],
               false,
-              movesHistory[movesHistory.length - 1],
+              gameStat.movesHistory[gameStat.movesHistory.length - 1],
             )
           : activePiece.name === 'Rook'
           ? LineMovement(
               newActiveCell,
               activePiece,
-              piecesPlacementLog[piecesPlacementLog.length - 1],
+              gameStat.piecesPlacementLog[
+                gameStat.piecesPlacementLog.length - 1
+              ],
               false,
             )
           : activePiece.name === 'Bishop'
           ? DiagonalMovement(
               newActiveCell,
               activePiece,
-              piecesPlacementLog[piecesPlacementLog.length - 1],
+              gameStat.piecesPlacementLog[
+                gameStat.piecesPlacementLog.length - 1
+              ],
               false,
             )
           : activePiece.name === 'Queen'
@@ -109,13 +105,17 @@ export default function ChessScreen() {
               ...DiagonalMovement(
                 newActiveCell,
                 activePiece,
-                piecesPlacementLog[piecesPlacementLog.length - 1],
+                gameStat.piecesPlacementLog[
+                  gameStat.piecesPlacementLog.length - 1
+                ],
                 false,
               ),
               ...LineMovement(
                 newActiveCell,
                 activePiece,
-                piecesPlacementLog[piecesPlacementLog.length - 1],
+                gameStat.piecesPlacementLog[
+                  gameStat.piecesPlacementLog.length - 1
+                ],
                 false,
               ),
             ]
@@ -123,8 +123,10 @@ export default function ChessScreen() {
           ? KingMovement(
               newActiveCell,
               activePiece,
-              piecesPlacementLog[piecesPlacementLog.length - 1],
-              castlingInfo,
+              gameStat.piecesPlacementLog[
+                gameStat.piecesPlacementLog.length - 1
+              ],
+              gameStat.castlingInfo,
             )
           : [];
       // filter only legal
@@ -132,101 +134,130 @@ export default function ChessScreen() {
         (i: number) =>
           !IsKingChecked(
             SimulateMove(
-              piecesPlacementLog[piecesPlacementLog.length - 1],
+              gameStat.piecesPlacementLog[
+                gameStat.piecesPlacementLog.length - 1
+              ],
               newActiveCell,
               i,
               activePiece,
             ),
-            step,
+            gameStat.step,
           ),
       );
-      setRouteCells(newRoutes);
+      setGameStat(prev => ({...prev, routeCells: newRoutes}));
     } else {
-      setActiveCell(null);
-      setRouteCells([]);
+      setGameStat(prev => ({...prev, activeCell: null, routeCells: []}));
     }
   }
 
   function CellAction(cell: number, activePiece: PieceType['value']) {
+    if (gameStat.gameResult) return false;
     if (
-      routeCells?.length &&
-      routeCells.includes(cell) &&
-      typeof activeCell === 'number'
+      gameStat.routeCells?.length &&
+      gameStat.routeCells.includes(cell) &&
+      typeof gameStat.activeCell === 'number'
     ) {
       //if user tap on pieces route to move it
 
       // calculate new move
       const makeMoveResults = MakeMove(
-        piecesPlacementLog[piecesPlacementLog.length - 1],
-        activeCell,
+        gameStat.piecesPlacementLog[gameStat.piecesPlacementLog.length - 1],
+        gameStat.activeCell,
         cell,
-        movesHistory[movesHistory.length - 1],
+        gameStat.movesHistory[gameStat.movesHistory.length - 1],
       );
       // new piece placement after move
       const newMove: PiecePlacementLogType = makeMoveResults.placement;
 
       // Illegal check if my king become under attack
-      if (IsKingChecked(newMove, step)) {
+      if (IsKingChecked(newMove, gameStat.step)) {
         // TODO illegal move
         return false;
       }
-      setCheck(null);
-      if (IsKingChecked(newMove, step === 'white' ? 'black' : 'white')) {
+      setGameStat(prev => ({...prev, check: null}));
+      if (
+        IsKingChecked(newMove, gameStat.step === 'white' ? 'black' : 'white')
+      ) {
         if (
           IsCheckmate(
             newMove,
-            step === 'white' ? 'black' : 'white',
-            movesHistory[movesHistory.length - 1],
+            gameStat.step === 'white' ? 'black' : 'white',
+            gameStat.movesHistory[gameStat.movesHistory.length - 1],
           )
         ) {
           // checkmate
-          setGameResult(step);
-          setCheckmate(step === 'white' ? 'black' : 'white');
-          setIsGameActive(false);
+          setGameStat(prev => ({
+            ...prev,
+            checkmate: prev.step === 'white' ? 'black' : 'white',
+            gameResult: prev.step,
+          }));
         } else {
           // check
-          setCheck(step === 'white' ? 'black' : 'white');
+          setGameStat(prev => ({
+            ...prev,
+            check: prev.step === 'white' ? 'black' : 'white',
+          }));
         }
       } else if (
-        IsStalemate(newMove, step === 'white' ? 'black' : 'white') ||
+        IsStalemate(newMove, gameStat.step === 'white' ? 'black' : 'white') ||
         OnlyKingsLeft(newMove)
       ) {
-        setGameResult('draw');
-        setIsGameActive(false);
+        setGameStat(prev => ({
+          ...prev,
+          gameResult: 'draw',
+        }));
       }
       // save new piece placement + write history
       if (newMove) {
-        setMovesHistory([...movesHistory, {from: activeCell, to: cell}]);
-        dispatch(updatepiecesPlacementLog([...piecesPlacementLog, newMove]));
-        if (makeMoveResults.taken) {
-          setTackenPieces([...takenPieces, makeMoveResults.taken]);
-        }
+        setGameStat(prev => ({
+          ...prev,
+          movesHistory: [
+            ...prev.movesHistory,
+            {from: Number(gameStat.activeCell), to: cell},
+          ],
+          piecesPlacementLog: [...prev.piecesPlacementLog, newMove],
+          takenPieces: makeMoveResults.taken
+            ? [...prev.takenPieces, makeMoveResults.taken]
+            : prev.takenPieces,
+        }));
       }
 
       const pieceId =
-        piecesPlacementLog[piecesPlacementLog.length - 1][activeCell].piece?.id;
+        gameStat.piecesPlacementLog[gameStat.piecesPlacementLog.length - 1][
+          gameStat.activeCell
+        ].piece?.id;
       // is castle pieces moved
-      setCastlingInfo({
-        whiteKingMoved:
-          pieceId === 'WK' ? true : castlingInfo['whiteKingMoved'],
-        '0RookMoved': pieceId === 'WR1' ? true : castlingInfo['0RookMoved'],
-        '7RookMoved': pieceId === 'WR2' ? true : castlingInfo['7RookMoved'],
-        blackKingMoved:
-          pieceId === 'BK' ? true : castlingInfo['blackKingMoved'],
-        '56RookMoved': pieceId === 'BR1' ? true : castlingInfo['56RookMoved'],
-        '63RookMoved': pieceId === 'BR2' ? true : castlingInfo['63RookMoved'],
-      });
-      // change color for new player
-      setStep(prev => (prev === 'white' ? 'black' : 'white'));
-      setActiveCell(null);
-      setRouteCells([]);
+      setGameStat(prev => ({
+        ...prev,
+        castlingInfo: {
+          whiteKingMoved:
+            pieceId === 'WK' ? true : prev.castlingInfo['whiteKingMoved'],
+          '0RookMoved':
+            pieceId === 'WR1' ? true : prev.castlingInfo['0RookMoved'],
+          '7RookMoved':
+            pieceId === 'WR2' ? true : prev.castlingInfo['7RookMoved'],
+          blackKingMoved:
+            pieceId === 'BK' ? true : prev.castlingInfo['blackKingMoved'],
+          '56RookMoved':
+            pieceId === 'BR1' ? true : prev.castlingInfo['56RookMoved'],
+          '63RookMoved':
+            pieceId === 'BR2' ? true : prev.castlingInfo['63RookMoved'],
+        },
+        step: prev.step === 'white' ? 'black' : 'white',
+        activeCell: null,
+        routeCells: [],
+      }));
       return;
     } else if (
-      piecesPlacementLog[piecesPlacementLog.length - 1][cell].status === 'free'
+      gameStat.piecesPlacementLog[gameStat.piecesPlacementLog.length - 1][cell]
+        .status === 'free'
     ) {
       // user tap on ampty board -> remove cell from active + clear shown routes
-      setActiveCell(null);
-      setRouteCells([]);
+      setGameStat(prev => ({
+        ...prev,
+        activeCell: null,
+        routeCells: [],
+      }));
       return;
     }
     OnNewPiecePoint(cell, activePiece);
@@ -236,7 +267,7 @@ export default function ChessScreen() {
     (cell: number, activePiece: any) => {
       CellAction(cell, activePiece);
     },
-    [activeCell, routeCells],
+    [gameStat.activeCell, gameStat.routeCells],
   );
 
   return (
@@ -251,13 +282,15 @@ export default function ChessScreen() {
       }}>
       <StatusBar backgroundColor={colors.bg} barStyle={'light-content'} />
       <PlayerStatBlock
-        step={step}
-        takenPieces={takenPieces}
-        playerColor={'black'}
-        check={check === 'black'}
-        checkmate={checkmate === 'black'}
-        isGameActive={isGameActive}
-        gameResult={gameResult}
+        // step={step}
+        // takenPieces={takenPieces}
+        // playerColor={'black'}
+        // check={check === 'black'}
+        // checkmate={checkmate === 'black'}
+        // isGameActive={isGameActive}
+        // gameResult={gameResult}
+        gameStat={gameStat}
+        playerColor="black"
       />
 
       <View
@@ -272,12 +305,13 @@ export default function ChessScreen() {
             <RenderRowItem
               row={item}
               onPress={handleCellPress}
-              activeCell={activeCell}
-              routeCells={routeCells}
-              piecesPlacementLog={piecesPlacementLog}
-              step={step}
-              lastMove={movesHistory[movesHistory.length - 1]}
-              check={check}
+              // activeCell={activeCell}
+              // routeCells={routeCells}
+              // piecesPlacementLog={piecesPlacementLog}
+              // step={step}
+              // lastMove={movesHistory[movesHistory.length - 1]}
+              // check={check}
+              gameStat={gameStat}
             />
           )}
           keyExtractor={(item, index) => index.toString()}
@@ -288,15 +322,7 @@ export default function ChessScreen() {
           })}
         />
       </View>
-      <PlayerStatBlock
-        step={step}
-        takenPieces={takenPieces}
-        playerColor={'white'}
-        check={check === 'white'}
-        checkmate={checkmate === 'white'}
-        isGameActive={isGameActive}
-        gameResult={gameResult}
-      />
+      <PlayerStatBlock gameStat={gameStat} playerColor="white" />
     </View>
   );
 }
