@@ -1,7 +1,7 @@
 # React Native Chass board
 
 - all pieces move
-- pawn promotion (only to a queen for now)
+- pawn promotion (to queen, rook, bishop or knight)
 - en passant
 - castling
 - check

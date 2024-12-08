@@ -182,3 +182,19 @@ export function OnlyKingsLeft(piecePlacement: PiecePlacementLogType) {
   ).length;
   return piecesLeft === 2;
 }
+
+export function IsPawnPromotion(
+  piecePlacement: PiecePlacementLogType,
+  from: number,
+  to: number,
+) {
+  if (
+    piecePlacement[from].piece &&
+    piecePlacement[from].piece.name === 'Pawn' &&
+    Math.floor(to / 8) ===
+      (piecePlacement[from].piece.color === 'white' ? 7 : 0)
+  ) {
+    return true;
+  }
+  return false;
+}

@@ -5,7 +5,9 @@ import rules from '../constants/rules';
 import RenderRowItem from '../components/chess/RenderRowItem';
 import {
   GameStatInterface,
+  PiecePlacementLogArrayType,
   PiecePlacementLogType,
+  PiecePlacementType,
   PieceType,
 } from '../constants/interfaces';
 import colors from '../constants/colors';
@@ -18,12 +20,14 @@ import {MakeMove} from '../functions/makeMove';
 import {
   IsCheckmate,
   IsKingChecked,
+  IsPawnPromotion,
   IsStalemate,
   OnlyKingsLeft,
   SimulateMove,
 } from '../functions/chessFunctions';
 import PlayerStatBlock from './PlayerStatBlock';
 import startPiecePlacement from '../constants/StartPiecePlacement';
+import PromotionModal from './PromotionModal';
 
 const width = Dimensions.get('screen').width;
 
@@ -56,6 +60,7 @@ export default function ChessScreen() {
 
   const [whiteTime, setWhiteTime] = useState<number>(startTime);
   const [blackTime, setBlackTime] = useState<number>(startTime);
+  const [modal, setModal] = useState<boolean>(false);
 
   const timerRef: any = useRef<NodeJS.Timer | null>(null);
 
@@ -184,7 +189,11 @@ export default function ChessScreen() {
     }
   }
 
-  function CellAction(cell: number, activePiece: PieceType['value']) {
+  function CellAction(
+    cell: number,
+    activePiece: PieceType['value'],
+    promote?: string,
+  ) {
     if (gameStat.gameResult) return false;
     if (
       gameStat.routeCells?.length &&
@@ -256,6 +265,16 @@ export default function ChessScreen() {
             ? [...prev.takenPieces, makeMoveResults.taken]
             : prev.takenPieces,
         }));
+        if (
+          IsPawnPromotion(
+            gameStat.piecesPlacementLog[gameStat.piecesPlacementLog.length - 1],
+            gameStat.activeCell,
+            cell,
+          )
+        ) {
+          setModal(true);
+          return;
+        }
         onPlayerMove();
       }
 
@@ -387,6 +406,52 @@ export default function ChessScreen() {
         startTime={startTime}
         increment={increment}
         onStart={() => {}}
+      />
+      <PromotionModal
+        visible={modal}
+        step={gameStat.step}
+        onSelect={(newPiece: any) => {
+          const to: number =
+            gameStat.movesHistory[gameStat.movesHistory.length - 1].to;
+
+          const newCell: PiecePlacementType = {
+            ...gameStat.piecesPlacementLog[
+              gameStat.piecesPlacementLog.length - 1
+            ][to],
+            piece: {
+              name: newPiece,
+              color:
+                gameStat.piecesPlacementLog[
+                  gameStat.piecesPlacementLog.length - 1
+                ][to].piece!.color,
+              id: gameStat.piecesPlacementLog[
+                gameStat.piecesPlacementLog.length - 1
+              ][to].piece!.id,
+            },
+          };
+
+          const newPiecePlacement: PiecePlacementLogType = {
+            ...gameStat.piecesPlacementLog[
+              gameStat.piecesPlacementLog.length - 1
+            ],
+            [to]: newCell,
+          };
+          const newPiecePlacementLog: PiecePlacementLogArrayType = [
+            ...gameStat.piecesPlacementLog.slice(
+              0,
+              gameStat.piecesPlacementLog.length - 1,
+            ),
+            newPiecePlacement,
+          ];
+
+          setGameStat(prev => ({
+            ...prev,
+            piecesPlacementLog: newPiecePlacementLog,
+            step: prev.step === 'white' ? 'black' : 'white',
+          }));
+          setModal(false);
+          onPlayerMove();
+        }}
       />
     </View>
   );

@@ -49,7 +49,7 @@ export function MakeMove(
       newPiecePlacement[from] = {status: 'free'};
       newPiecePlacement[to] = {
         status: 'occupied',
-        piece: {...piece, name: 'Queen'},
+        piece: {...piece, name: 'Pawn'}, // TODO will promote in modal
       };
     } else if (
       lastMove?.from &&
