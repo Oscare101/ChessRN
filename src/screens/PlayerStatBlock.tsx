@@ -57,7 +57,7 @@ export default function PlayerStatBlock(props: {
         alignItems: 'center',
         justifyContent: 'space-between',
         flexDirection: 'column',
-        // paddingBottom: width * 0.05,
+        paddingBottom: width * 0.02,
       }}>
       <View
         style={{
@@ -65,7 +65,6 @@ export default function PlayerStatBlock(props: {
           alignItems: 'flex-start',
           justifyContent: 'flex-start',
           width: '100%',
-          // flex: 1,
         }}>
         {props.gameStat.takenPieces
           .filter((i: PieceType['value']) => i.color !== props.playerColor)
@@ -107,16 +106,14 @@ export default function PlayerStatBlock(props: {
       )}
       {props.gameStat.checkmate === props.playerColor ? (
         <View style={[styles.block, {backgroundColor: colors.error}]}>
-          <Text style={styles.title}>Checkmate</Text>
+          <Text style={styles.title}>CHECKMATE</Text>
         </View>
       ) : (
         <></>
       )}
       {props.gameStat.gameResult === 'draw' ? (
         <View style={[styles.block, {backgroundColor: colors.warning}]}>
-          <Text style={styles.title}>
-            {props.gameStat.gameResult.toUpperCase()}
-          </Text>
+          <Text style={styles.title}>DRAW</Text>
           <Text
             style={[styles.title, {fontSize: width * 0.04, fontWeight: 300}]}>
             {props.gameStat.comment}
@@ -128,6 +125,15 @@ export default function PlayerStatBlock(props: {
       {props.gameStat.gameResult === props.playerColor ? (
         <View style={[styles.block, {backgroundColor: colors.success}]}>
           <Text style={styles.title}>WIN</Text>
+        </View>
+      ) : (
+        <></>
+      )}
+      {props.gameStat.comment &&
+      props.gameStat.gameResult ===
+        (props.playerColor === 'white' ? 'black' : 'white') ? (
+        <View style={[styles.block, {backgroundColor: colors.error}]}>
+          <Text style={styles.title}>{props.gameStat.comment}</Text>
         </View>
       ) : (
         <></>

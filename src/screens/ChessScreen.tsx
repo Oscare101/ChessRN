@@ -31,7 +31,7 @@ import PromotionModal from './PromotionModal';
 
 const width = Dimensions.get('screen').width;
 
-const startTime = 300;
+const startTime = 5;
 const increment = 2;
 
 const startPositions: GameStatInterface = {
@@ -398,6 +398,7 @@ export default function ChessScreen() {
         activeCell: null,
         routeCells: [],
         isGameActive: false,
+        comment: 'Loss On Time',
       }));
     } else if (blackTime === 0) {
       setGameStat(prev => ({
@@ -406,6 +407,7 @@ export default function ChessScreen() {
         activeCell: null,
         routeCells: [],
         isGameActive: false,
+        comment: 'Loss On Time',
       }));
     }
   }, [whiteTime, blackTime]);
