@@ -1,4 +1,8 @@
-import {PiecePlacementLogType, PieceType} from '../constants/interfaces';
+import {
+  CastlingType,
+  PiecePlacementLogType,
+  PieceType,
+} from '../constants/interfaces';
 import {IsCellUnderAttack} from './chessFunctions';
 import {DiagonalMovement} from './diagonalMovement';
 import {LineMovement} from './lineMovement';
@@ -7,7 +11,7 @@ export function KingMovement(
   position: number,
   activePiece: PieceType['value'],
   piecesPlacement: PiecePlacementLogType,
-  castlingInfo: {[key: string]: boolean},
+  castlingInfo: CastlingType | null,
 ) {
   let routes: number[] = [
     ...DiagonalMovement(position, activePiece, piecesPlacement, true),
@@ -42,8 +46,9 @@ export function KingMovement(
 
     // check if not used
     if (
-      castlingInfo[`${activePieceColor}KingMoved`] ||
-      castlingInfo[`${rookPosition}RookMoved`]
+      castlingInfo &&
+      (castlingInfo[`${activePieceColor}KingMoved`] ||
+        castlingInfo[`${rookPosition}RookMoved`])
     ) {
       return false;
     }

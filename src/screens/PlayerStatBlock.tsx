@@ -57,7 +57,7 @@ export default function PlayerStatBlock(props: {
         alignItems: 'center',
         justifyContent: 'space-between',
         flexDirection: 'column',
-        paddingBottom: width * 0.05,
+        // paddingBottom: width * 0.05,
       }}>
       <View
         style={{
@@ -114,7 +114,13 @@ export default function PlayerStatBlock(props: {
       )}
       {props.gameStat.gameResult === 'draw' ? (
         <View style={[styles.block, {backgroundColor: colors.warning}]}>
-          <Text style={styles.title}>{props.gameStat.gameResult}</Text>
+          <Text style={styles.title}>
+            {props.gameStat.gameResult.toUpperCase()}
+          </Text>
+          <Text
+            style={[styles.title, {fontSize: width * 0.04, fontWeight: 300}]}>
+            {props.gameStat.comment}
+          </Text>
         </View>
       ) : (
         <></>

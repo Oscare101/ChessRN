@@ -7,5 +7,7 @@
 - check
 - checkmate
 - stalemate
+- draw (only two kings left)
 - illegal move prevention
+- threefold repetition
 - timer

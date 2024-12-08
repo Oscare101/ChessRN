@@ -1,8 +1,11 @@
 import {
+  CastlingType,
+  PiecePlacementLogArrayType,
   PiecePlacementLogType,
   PiecePlacementType,
   PieceType,
 } from '../constants/interfaces';
+import startPiecePlacement from '../constants/StartPiecePlacement';
 import {DiagonalMovement} from './diagonalMovement';
 import {KingMovement} from './kingMovement';
 import {KnightMovement} from './knightMovement';
@@ -103,7 +106,7 @@ function GetPossibleMoves(
         ...DiagonalMovement(position, piece, piecePlacement, false),
       ];
     case 'King':
-      return KingMovement(position, piece, piecePlacement, {});
+      return KingMovement(position, piece, piecePlacement, null);
     case 'Knight':
       return KnightMovement(position, piece, piecePlacement);
     default:
@@ -197,4 +200,50 @@ export function IsPawnPromotion(
     return true;
   }
   return false;
+}
+
+export function CheckThreefoldRepetition(
+  placementLog: PiecePlacementLogArrayType,
+  castlingLog: CastlingType[],
+): boolean {
+  const lastPlacement = placementLog[placementLog.length - 1];
+  const lastCastling = castlingLog[castlingLog.length - 1];
+
+  const amount = placementLog.filter(
+    (_: any, index: number) =>
+      JSON.stringify(
+        Object.entries(placementLog[index])
+          .sort(([a], [b]) => Number(a) - Number(b))
+          .map((i: any) => {
+            if (i[1].status === 'occupied') {
+              return [i[0], i[1].piece?.name];
+            } else {
+              return [i[0], 'free'];
+            }
+          }),
+      ) ===
+        JSON.stringify(
+          Object.entries(lastPlacement)
+            .sort(([a], [b]) => Number(a) - Number(b))
+            .map((i: any) => {
+              if (i[1].status === 'occupied') {
+                return [i[0], i[1].piece?.name];
+              } else {
+                return [i[0], 'free'];
+              }
+            }),
+        ) &&
+      JSON.stringify(
+        Object.entries(castlingLog[index]).sort(
+          ([a], [b]) => Number(a) - Number(b),
+        ),
+      ) ===
+        JSON.stringify(
+          Object.entries(lastCastling).sort(
+            ([a], [b]) => Number(a) - Number(b),
+          ),
+        ),
+  ).length;
+
+  return amount === 3;
 }

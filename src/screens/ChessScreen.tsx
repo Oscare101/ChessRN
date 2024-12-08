@@ -1,6 +1,5 @@
 import {Dimensions, FlatList, StatusBar, StyleSheet, View} from 'react-native';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {useDispatch} from 'react-redux';
 import rules from '../constants/rules';
 import RenderRowItem from '../components/chess/RenderRowItem';
 import {
@@ -18,6 +17,7 @@ import {DiagonalMovement} from '../functions/diagonalMovement';
 import {KingMovement} from '../functions/kingMovement';
 import {MakeMove} from '../functions/makeMove';
 import {
+  CheckThreefoldRepetition,
   IsCheckmate,
   IsKingChecked,
   IsPawnPromotion,
@@ -43,16 +43,19 @@ const startPositions: GameStatInterface = {
   movesHistory: [],
   activeCell: null,
   routeCells: [],
-  castlingInfo: {
-    whiteKingMoved: false,
-    '0RookMoved': false,
-    '7RookMoved': false,
-    blackKingMoved: false,
-    '56RookMoved': false,
-    '63RookMoved': false,
-  },
+  castlingInfo: [
+    {
+      whiteKingMoved: false,
+      '0RookMoved': false,
+      '7RookMoved': false,
+      blackKingMoved: false,
+      '56RookMoved': false,
+      '63RookMoved': false,
+    },
+  ],
   piecesPlacementLog: startPiecePlacement,
   isGameActive: false,
+  comment: '',
 };
 
 export default function ChessScreen() {
@@ -63,6 +66,21 @@ export default function ChessScreen() {
   const [modal, setModal] = useState<boolean>(false);
 
   const timerRef: any = useRef<NodeJS.Timer | null>(null);
+
+  // useEffect(() => {
+  //   if (
+  //     CheckThreefoldRepetition(
+  //       gameStat.piecesPlacementLog,
+  //       gameStat.castlingInfo,
+  //     )
+  //   ) {
+  //     setGameStat(prev => ({
+  //       ...prev,
+  //       isGameActive: false,
+  //       gameResult: 'draw',
+  //     }));
+  //   }
+  // }, [gameStat.piecesPlacementLog]);
 
   useEffect(() => {
     if (gameStat.step && gameStat.isGameActive) {
@@ -165,7 +183,7 @@ export default function ChessScreen() {
               gameStat.piecesPlacementLog[
                 gameStat.piecesPlacementLog.length - 1
               ],
-              gameStat.castlingInfo,
+              gameStat.castlingInfo[gameStat.castlingInfo.length - 1],
             )
           : [];
       // filter only legal
@@ -214,7 +232,6 @@ export default function ChessScreen() {
 
       // Illegal check if my king become under attack
       if (IsKingChecked(newMove, gameStat.step)) {
-        // TODO illegal move
         return false;
       }
       setGameStat(prev => ({...prev, check: null}));
@@ -243,13 +260,20 @@ export default function ChessScreen() {
           }));
         }
       } else if (
-        IsStalemate(newMove, gameStat.step === 'white' ? 'black' : 'white') ||
-        OnlyKingsLeft(newMove)
+        IsStalemate(newMove, gameStat.step === 'white' ? 'black' : 'white')
       ) {
         setGameStat(prev => ({
           ...prev,
           gameResult: 'draw',
           isGameActive: false,
+          comment: 'Stalemate',
+        }));
+      } else if (OnlyKingsLeft(newMove)) {
+        setGameStat(prev => ({
+          ...prev,
+          gameResult: 'draw',
+          isGameActive: false,
+          comment: 'Bare Kings',
         }));
       }
       // save new piece placement + write history
@@ -283,26 +307,66 @@ export default function ChessScreen() {
           gameStat.activeCell
         ].piece?.id;
       // is castle pieces moved
+      const newCastling = {
+        whiteKingMoved:
+          pieceId === 'WK'
+            ? true
+            : gameStat.castlingInfo[gameStat.castlingInfo.length - 1][
+                'whiteKingMoved'
+              ],
+        '0RookMoved':
+          pieceId === 'WR1'
+            ? true
+            : gameStat.castlingInfo[gameStat.castlingInfo.length - 1][
+                '0RookMoved'
+              ],
+        '7RookMoved':
+          pieceId === 'WR2'
+            ? true
+            : gameStat.castlingInfo[gameStat.castlingInfo.length - 1][
+                '7RookMoved'
+              ],
+        blackKingMoved:
+          pieceId === 'BK'
+            ? true
+            : gameStat.castlingInfo[gameStat.castlingInfo.length - 1][
+                'blackKingMoved'
+              ],
+        '56RookMoved':
+          pieceId === 'BR1'
+            ? true
+            : gameStat.castlingInfo[gameStat.castlingInfo.length - 1][
+                '56RookMoved'
+              ],
+        '63RookMoved':
+          pieceId === 'BR2'
+            ? true
+            : gameStat.castlingInfo[gameStat.castlingInfo.length - 1][
+                '63RookMoved'
+              ],
+      };
+
       setGameStat(prev => ({
         ...prev,
-        castlingInfo: {
-          whiteKingMoved:
-            pieceId === 'WK' ? true : prev.castlingInfo['whiteKingMoved'],
-          '0RookMoved':
-            pieceId === 'WR1' ? true : prev.castlingInfo['0RookMoved'],
-          '7RookMoved':
-            pieceId === 'WR2' ? true : prev.castlingInfo['7RookMoved'],
-          blackKingMoved:
-            pieceId === 'BK' ? true : prev.castlingInfo['blackKingMoved'],
-          '56RookMoved':
-            pieceId === 'BR1' ? true : prev.castlingInfo['56RookMoved'],
-          '63RookMoved':
-            pieceId === 'BR2' ? true : prev.castlingInfo['63RookMoved'],
-        },
+        castlingInfo: [...prev.castlingInfo, newCastling],
         step: prev.step === 'white' ? 'black' : 'white',
         activeCell: null,
         routeCells: [],
       }));
+      if (
+        CheckThreefoldRepetition(
+          [...gameStat.piecesPlacementLog, newMove],
+          [...gameStat.castlingInfo, newCastling],
+        )
+      ) {
+        setGameStat(prev => ({
+          ...prev,
+          isGameActive: false,
+          gameResult: 'draw',
+          comment: 'Threefold Repetition',
+        }));
+      }
+
       return;
     } else if (
       gameStat.piecesPlacementLog[gameStat.piecesPlacementLog.length - 1][cell]
@@ -399,6 +463,7 @@ export default function ChessScreen() {
           })}
         />
       </View>
+
       <PlayerStatBlock
         gameStat={gameStat}
         playerColor="white"

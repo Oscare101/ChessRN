@@ -21,6 +21,15 @@ export interface IconName {
   value: 'Knight' | 'King' | 'Queen' | 'Pawn' | 'Bishop' | 'Rook';
 }
 
+export interface CastlingType {
+  whiteKingMoved: boolean;
+  '0RookMoved': boolean;
+  '7RookMoved': boolean;
+  blackKingMoved: boolean;
+  '56RookMoved': boolean;
+  '63RookMoved': boolean;
+}
+
 export interface GameStatInterface {
   gameResult: 'draw' | 'white' | 'black' | null;
   check: 'white' | 'black' | null;
@@ -33,14 +42,8 @@ export interface GameStatInterface {
   }[];
   activeCell: number | null;
   routeCells: number[];
-  castlingInfo: {
-    whiteKingMoved: boolean;
-    '0RookMoved': boolean;
-    '7RookMoved': boolean;
-    blackKingMoved: boolean;
-    '56RookMoved': boolean;
-    '63RookMoved': boolean;
-  };
+  castlingInfo: CastlingType[];
   piecesPlacementLog: PiecePlacementLogArrayType;
   isGameActive: boolean;
+  comment: string;
 }
