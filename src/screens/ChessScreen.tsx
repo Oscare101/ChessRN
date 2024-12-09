@@ -274,6 +274,70 @@ export default function ChessScreen() {
             ? [...prev.takenPieces, makeMoveResults.taken]
             : prev.takenPieces,
         }));
+
+        const pieceId =
+          gameStat.piecesPlacementLog[gameStat.piecesPlacementLog.length - 1][
+            gameStat.activeCell
+          ].piece?.id;
+        // is castle pieces moved
+        const newCastling = {
+          whiteKingMoved:
+            pieceId === 'WK'
+              ? true
+              : gameStat.castlingInfo[gameStat.castlingInfo.length - 1][
+                  'whiteKingMoved'
+                ],
+          '0RookMoved':
+            pieceId === 'WR1'
+              ? true
+              : gameStat.castlingInfo[gameStat.castlingInfo.length - 1][
+                  '0RookMoved'
+                ],
+          '7RookMoved':
+            pieceId === 'WR2'
+              ? true
+              : gameStat.castlingInfo[gameStat.castlingInfo.length - 1][
+                  '7RookMoved'
+                ],
+          blackKingMoved:
+            pieceId === 'BK'
+              ? true
+              : gameStat.castlingInfo[gameStat.castlingInfo.length - 1][
+                  'blackKingMoved'
+                ],
+          '56RookMoved':
+            pieceId === 'BR1'
+              ? true
+              : gameStat.castlingInfo[gameStat.castlingInfo.length - 1][
+                  '56RookMoved'
+                ],
+          '63RookMoved':
+            pieceId === 'BR2'
+              ? true
+              : gameStat.castlingInfo[gameStat.castlingInfo.length - 1][
+                  '63RookMoved'
+                ],
+        };
+        setGameStat(prev => ({
+          ...prev,
+          castlingInfo: [...prev.castlingInfo, newCastling],
+          step: prev.step === 'white' ? 'black' : 'white',
+          activeCell: null,
+          routeCells: [],
+        }));
+        if (
+          CheckThreefoldRepetition(
+            [...gameStat.piecesPlacementLog, newMove],
+            [...gameStat.castlingInfo, newCastling],
+          )
+        ) {
+          setGameStat(prev => ({
+            ...prev,
+            isGameActive: false,
+            gameResult: 'draw',
+            comment: 'Threefold Repetition',
+          }));
+        }
         if (
           IsPawnPromotion(
             gameStat.piecesPlacementLog[gameStat.piecesPlacementLog.length - 1],
@@ -285,71 +349,6 @@ export default function ChessScreen() {
           return;
         }
         onPlayerMove();
-      }
-
-      const pieceId =
-        gameStat.piecesPlacementLog[gameStat.piecesPlacementLog.length - 1][
-          gameStat.activeCell
-        ].piece?.id;
-      // is castle pieces moved
-      const newCastling = {
-        whiteKingMoved:
-          pieceId === 'WK'
-            ? true
-            : gameStat.castlingInfo[gameStat.castlingInfo.length - 1][
-                'whiteKingMoved'
-              ],
-        '0RookMoved':
-          pieceId === 'WR1'
-            ? true
-            : gameStat.castlingInfo[gameStat.castlingInfo.length - 1][
-                '0RookMoved'
-              ],
-        '7RookMoved':
-          pieceId === 'WR2'
-            ? true
-            : gameStat.castlingInfo[gameStat.castlingInfo.length - 1][
-                '7RookMoved'
-              ],
-        blackKingMoved:
-          pieceId === 'BK'
-            ? true
-            : gameStat.castlingInfo[gameStat.castlingInfo.length - 1][
-                'blackKingMoved'
-              ],
-        '56RookMoved':
-          pieceId === 'BR1'
-            ? true
-            : gameStat.castlingInfo[gameStat.castlingInfo.length - 1][
-                '56RookMoved'
-              ],
-        '63RookMoved':
-          pieceId === 'BR2'
-            ? true
-            : gameStat.castlingInfo[gameStat.castlingInfo.length - 1][
-                '63RookMoved'
-              ],
-      };
-
-      setGameStat(prev => ({
-        ...prev,
-        castlingInfo: [...prev.castlingInfo, newCastling],
-        step: prev.step === 'white' ? 'black' : 'white',
-        activeCell: null,
-        routeCells: [],
-      }));
-      if (
-        CheckThreefoldRepetition(
-          [...gameStat.piecesPlacementLog, newMove],
-          [...gameStat.castlingInfo, newCastling],
-        )
-      ) {
-        setGameStat(prev => ({
-          ...prev,
-          isGameActive: false,
-          gameResult: 'draw',
-          comment: 'Threefold Repetition',
-        }));
       }
 
       return;
