@@ -9,18 +9,13 @@ import React from 'react';
 import colors from '../constants/colors';
 import {GameStatInterface, PieceType} from '../constants/interfaces';
 import Icon from '../components/icons/Icon';
+import TimerBlock from '../components/chess/TimerBlock';
+import GameResultBlock from '../components/chess/GameResultBlock';
+import MenuBlock from '../components/chess/MenuBlock';
 
 const width = Dimensions.get('screen').width;
 
-interface PlayerStatBlockProps {
-  step: 'white' | 'black';
-  takenPieces: PieceType['value'][];
-  playerColor: 'white' | 'black';
-  check: boolean;
-  checkmate: boolean;
-  isGameActive: boolean;
-  gameResult: 'draw' | 'white' | 'black' | null;
-}
+interface PlayerStatBlockProps {}
 
 export default function PlayerStatBlock(props: {
   gameStat: GameStatInterface;
@@ -30,12 +25,6 @@ export default function PlayerStatBlock(props: {
   increment: number;
   onStart: any;
 }) {
-  function formatTime(seconds: number): string {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
-  }
-
   return (
     <View
       style={{
@@ -57,7 +46,7 @@ export default function PlayerStatBlock(props: {
         alignItems: 'center',
         justifyContent: 'space-between',
         flexDirection: 'column',
-        paddingBottom: width * 0.02,
+        padding: width * 0.02,
       }}>
       <View
         style={{
@@ -82,6 +71,7 @@ export default function PlayerStatBlock(props: {
             </View>
           ))}
       </View>
+
       {!props.gameStat.isGameActive && props.playerColor === 'black' ? (
         <TouchableOpacity
           activeOpacity={0.8}
@@ -96,70 +86,40 @@ export default function PlayerStatBlock(props: {
       ) : (
         <></>
       )}
+      {!props.gameStat.isGameActive ? (
+        <GameResultBlock
+          gameStat={props.gameStat}
+          playerColor={props.playerColor}
+        />
+      ) : (
+        <></>
+      )}
 
-      {props.gameStat.check === props.playerColor ? (
+      {props.gameStat.isGameActive &&
+      props.gameStat.check === props.playerColor ? (
         <View style={[styles.block, {backgroundColor: colors.piecePointBlack}]}>
           <Text style={styles.title}>Check</Text>
         </View>
       ) : (
         <></>
       )}
-      {props.gameStat.checkmate === props.playerColor ? (
-        <View style={[styles.block, {backgroundColor: colors.error}]}>
-          <Text style={styles.title}>CHECKMATE</Text>
-        </View>
-      ) : (
-        <></>
-      )}
-      {props.gameStat.gameResult === 'draw' ? (
-        <View style={[styles.block, {backgroundColor: colors.warning}]}>
-          <Text style={styles.title}>DRAW</Text>
-          <Text
-            style={[styles.title, {fontSize: width * 0.04, fontWeight: 300}]}>
-            {props.gameStat.comment}
-          </Text>
-        </View>
-      ) : (
-        <></>
-      )}
-      {props.gameStat.gameResult === props.playerColor ? (
-        <View style={[styles.block, {backgroundColor: colors.success}]}>
-          <Text style={styles.title}>WIN</Text>
-        </View>
-      ) : (
-        <></>
-      )}
-      {props.gameStat.comment &&
-      props.gameStat.gameResult ===
-        (props.playerColor === 'white' ? 'black' : 'white') ? (
-        <View style={[styles.block, {backgroundColor: colors.error}]}>
-          <Text style={styles.title}>{props.gameStat.comment}</Text>
-        </View>
-      ) : (
-        <></>
-      )}
-
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
+      <View style={styles.bottomBlock}>
+        <TimerBlock
+          time={props.time}
+          increment={props.increment}
+          playerColor={props.playerColor}
+        />
         <View
-          style={[
-            styles.block,
-            {
-              backgroundColor:
-                props.playerColor === 'white'
-                  ? colors.cellWhite
-                  : colors.cellBlack,
-            },
-          ]}>
-          <Text style={[styles.title, {fontWeight: 900}]}>
-            {formatTime(props.time)}{' '}
-            <Text style={{fontWeight: 400}}>(+{props.increment})</Text>
-          </Text>
+          style={{
+            height: width * 0.1,
+            aspectRatio: 1,
+            borderRadius: width * 0.05,
+            overflow: 'hidden',
+          }}>
+          <Icon name="Logo" size={width * 0.1} color="" />
         </View>
+
+        <MenuBlock gameStat={props.gameStat} playerColor={props.playerColor} />
       </View>
     </View>
   );
@@ -169,11 +129,17 @@ const styles = StyleSheet.create({
   block: {
     padding: width * 0.02,
     paddingHorizontal: width * 0.05,
-    borderRadius: width * 0.022,
+    borderRadius: width * 0.015,
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
   },
 
   title: {fontSize: width * 0.05, color: colors.bg},
+  bottomBlock: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
 });

@@ -18,7 +18,17 @@ export interface PiecePlacementLogType {
 export type PiecePlacementLogArrayType = Array<PiecePlacementLogType>;
 
 export interface IconName {
-  value: 'Knight' | 'King' | 'Queen' | 'Pawn' | 'Bishop' | 'Rook';
+  value:
+    | 'Knight'
+    | 'King'
+    | 'Queen'
+    | 'Pawn'
+    | 'Bishop'
+    | 'Rook'
+    | 'Logo'
+    | 'Menu'
+    | 'Left'
+    | 'Right';
 }
 
 export interface CastlingType {

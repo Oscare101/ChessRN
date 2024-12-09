@@ -31,8 +31,8 @@ import PromotionModal from './PromotionModal';
 
 const width = Dimensions.get('screen').width;
 
-const startTime = 5;
-const increment = 2;
+const startTime = 600;
+const increment = 10;
 
 const startPositions: GameStatInterface = {
   gameResult: null,
@@ -66,21 +66,6 @@ export default function ChessScreen() {
   const [modal, setModal] = useState<boolean>(false);
 
   const timerRef: any = useRef<NodeJS.Timer | null>(null);
-
-  // useEffect(() => {
-  //   if (
-  //     CheckThreefoldRepetition(
-  //       gameStat.piecesPlacementLog,
-  //       gameStat.castlingInfo,
-  //     )
-  //   ) {
-  //     setGameStat(prev => ({
-  //       ...prev,
-  //       isGameActive: false,
-  //       gameResult: 'draw',
-  //     }));
-  //   }
-  // }, [gameStat.piecesPlacementLog]);
 
   useEffect(() => {
     if (gameStat.step && gameStat.isGameActive) {

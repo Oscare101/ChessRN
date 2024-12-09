@@ -6,6 +6,10 @@ import BishopIcon from './BishopIcon';
 import KnightIcon from './KnightIcon';
 import KingIcon from './KingIcon';
 import QueenIcon from './QueenIcon';
+import LogoIcon from './LogoIcon';
+import MenuIcon from './MenuIcon';
+import LeftIcon from './LeftIcon';
+import RightIcon from './RightIcon';
 
 export default function Icon(props: {
   name: IconName['value'];
@@ -51,6 +55,34 @@ export default function Icon(props: {
     Queen: (
       <SvgXml
         xml={QueenIcon(props.color)}
+        width={props.size}
+        height={props.size}
+      />
+    ),
+    Logo: (
+      <SvgXml
+        xml={LogoIcon(props.color)}
+        width={props.size}
+        height={props.size}
+      />
+    ),
+    Menu: (
+      <SvgXml
+        xml={MenuIcon(props.color)}
+        width={props.size}
+        height={props.size}
+      />
+    ),
+    Left: (
+      <SvgXml
+        xml={LeftIcon(props.color)}
+        width={props.size}
+        height={props.size}
+      />
+    ),
+    Right: (
+      <SvgXml
+        xml={RightIcon(props.color)}
         width={props.size}
         height={props.size}
       />
