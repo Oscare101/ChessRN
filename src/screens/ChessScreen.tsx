@@ -60,6 +60,7 @@ const startPositions: GameStatInterface = {
 
 export default function ChessScreen() {
   const [gameStat, setGameStat] = useState<GameStatInterface>(startPositions);
+  const [showMoveIndex, setShowMoveIndex] = useState<number | null>(null);
 
   const [whiteTime, setWhiteTime] = useState<number>(startTime);
   const [blackTime, setBlackTime] = useState<number>(startTime);
@@ -81,6 +82,14 @@ export default function ChessScreen() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [gameStat.step, gameStat.isGameActive]);
+
+  useEffect(() => {
+    if (gameStat.isGameActive) {
+      setShowMoveIndex(null);
+    } else {
+      setShowMoveIndex(gameStat.piecesPlacementLog.length - 1);
+    }
+  }, [gameStat.isGameActive]);
 
   function onPlayerMove() {
     if (gameStat.step === 'white') {
@@ -396,6 +405,18 @@ export default function ChessScreen() {
     }
   }, [whiteTime, blackTime]);
 
+  function OnNextShow() {
+    setShowMoveIndex(prev => (prev !== null && prev > 0 ? prev - 1 : prev));
+  }
+
+  function OnPreviousShow() {
+    setShowMoveIndex(prev =>
+      prev !== null && prev < gameStat.piecesPlacementLog.length - 1
+        ? prev + 1
+        : prev,
+    );
+  }
+
   return (
     <View
       style={{
@@ -418,6 +439,9 @@ export default function ChessScreen() {
           setWhiteTime(startTime);
           setBlackTime(startTime);
         }}
+        onPrev={OnNextShow}
+        onNext={OnPreviousShow}
+        showMoveIndex={showMoveIndex}
       />
 
       <View
@@ -432,13 +456,8 @@ export default function ChessScreen() {
             <RenderRowItem
               row={item}
               onPress={handleCellPress}
-              // activeCell={activeCell}
-              // routeCells={routeCells}
-              // piecesPlacementLog={piecesPlacementLog}
-              // step={step}
-              // lastMove={movesHistory[movesHistory.length - 1]}
-              // check={check}
               gameStat={gameStat}
+              showMoveIndex={showMoveIndex}
             />
           )}
           keyExtractor={(item, index) => index.toString()}
@@ -457,6 +476,9 @@ export default function ChessScreen() {
         startTime={startTime}
         increment={increment}
         onStart={() => {}}
+        onPrev={OnNextShow}
+        onNext={OnPreviousShow}
+        showMoveIndex={showMoveIndex}
       />
       <PromotionModal
         visible={modal}

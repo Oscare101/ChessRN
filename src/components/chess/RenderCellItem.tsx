@@ -15,6 +15,7 @@ function RenderCellItem(props: {
   row: any;
   onPress: any;
   gameStat: GameStatInterface;
+  showMoveIndex: number | null;
 }) {
   const cellIndex: number =
     props.column.index + props.row.index * rules.rows.length;
@@ -23,9 +24,12 @@ function RenderCellItem(props: {
     (props.column.index % 2 === 1 && props.row.index % 2 === 1);
 
   const lastPiecePlacement: PiecePlacementLogType =
-    props.gameStat.piecesPlacementLog[
-      props.gameStat.piecesPlacementLog.length - 1
-    ];
+    props.showMoveIndex !== null
+      ? props.gameStat.piecesPlacementLog[props.showMoveIndex]
+      : props.gameStat.piecesPlacementLog[
+          props.gameStat.piecesPlacementLog.length - 1
+        ];
+
   const cell = lastPiecePlacement[cellIndex];
   const piece = cell?.piece;
   const lastMove =

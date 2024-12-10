@@ -20,6 +20,7 @@ function RenderRowItem(props: any) {
           // lastMove={props.lastMove}
           // check={props.check}
           gameStat={props.gameStat}
+          showMoveIndex={props.showMoveIndex}
         />
       )}
     />

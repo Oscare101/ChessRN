@@ -15,10 +15,31 @@ const width = Dimensions.get('screen').width;
 export default function MenuBlock(props: {
   playerColor: 'white' | 'black';
   gameStat: GameStatInterface;
+  onPrev: any;
+  onNext: any;
+  showMoveIndex: number | null;
 }) {
   return (
     <View style={styles.block}>
-      <TouchableOpacity activeOpacity={0.8} style={styles.button}>
+      <TouchableOpacity
+        disabled={
+          props.gameStat.isGameActive ||
+          !props.gameStat.gameResult ||
+          !props.showMoveIndex
+        }
+        activeOpacity={0.8}
+        style={[
+          styles.button,
+          {
+            opacity:
+              props.gameStat.isGameActive ||
+              !props.gameStat.gameResult ||
+              !props.showMoveIndex
+                ? 0.3
+                : 1,
+          },
+        ]}
+        onPress={props.onPrev}>
         <Icon name="Left" size={width * 0.09} color={colors.pieceWhite} />
       </TouchableOpacity>
       <View style={styles.line} />
@@ -26,7 +47,26 @@ export default function MenuBlock(props: {
         <Icon name="Menu" size={width * 0.09} color={colors.pieceWhite} />
       </TouchableOpacity>
       <View style={styles.line} />
-      <TouchableOpacity activeOpacity={0.8} style={styles.button}>
+      <TouchableOpacity
+        disabled={
+          props.gameStat.isGameActive ||
+          !props.gameStat.gameResult ||
+          props.showMoveIndex === props.gameStat.piecesPlacementLog.length - 1
+        }
+        activeOpacity={0.8}
+        style={[
+          styles.button,
+          {
+            opacity:
+              props.gameStat.isGameActive ||
+              !props.gameStat.gameResult ||
+              props.showMoveIndex ===
+                props.gameStat.piecesPlacementLog.length - 1
+                ? 0.3
+                : 1,
+          },
+        ]}
+        onPress={props.onNext}>
         <Icon name="Right" size={width * 0.09} color={colors.pieceWhite} />
       </TouchableOpacity>
     </View>

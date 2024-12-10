@@ -24,6 +24,9 @@ export default function PlayerStatBlock(props: {
   startTime: number;
   increment: number;
   onStart: any;
+  onPrev: any;
+  onNext: any;
+  showMoveIndex: number | null;
 }) {
   return (
     <View
@@ -119,7 +122,13 @@ export default function PlayerStatBlock(props: {
           <Icon name="Logo" size={width * 0.1} color="" />
         </View>
 
-        <MenuBlock gameStat={props.gameStat} playerColor={props.playerColor} />
+        <MenuBlock
+          gameStat={props.gameStat}
+          playerColor={props.playerColor}
+          onPrev={props.onPrev}
+          onNext={props.onNext}
+          showMoveIndex={props.showMoveIndex}
+        />
       </View>
     </View>
   );
