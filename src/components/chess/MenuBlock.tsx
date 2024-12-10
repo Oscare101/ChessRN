@@ -76,7 +76,7 @@ export default function MenuBlock(props: {
 const styles = StyleSheet.create({
   block: {
     width: width * 0.37,
-    height: width * 0.1,
+    height: width * 0.12,
     borderRadius: width * 0.015,
     alignItems: 'center',
     justifyContent: 'space-between',

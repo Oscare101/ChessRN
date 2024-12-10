@@ -1,4 +1,11 @@
-import {Dimensions, FlatList, StatusBar, StyleSheet, View} from 'react-native';
+import {
+  Dimensions,
+  FlatList,
+  StatusBar,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import rules from '../constants/rules';
 import RenderRowItem from '../components/chess/RenderRowItem';
@@ -28,6 +35,7 @@ import {
 import PlayerStatBlock from './PlayerStatBlock';
 import startPiecePlacement from '../constants/StartPiecePlacement';
 import PromotionModal from './PromotionModal';
+import SquaresNaming from './SquaresNaming';
 
 const width = Dimensions.get('screen').width;
 
@@ -229,40 +237,8 @@ export default function ChessScreen() {
         return false;
       }
       setGameStat(prev => ({...prev, check: null}));
-      if (
-        IsKingChecked(newMove, gameStat.step === 'white' ? 'black' : 'white')
-      ) {
-        if (
-          IsCheckmate(
-            newMove,
-            gameStat.step === 'white' ? 'black' : 'white',
-            gameStat.movesHistory[gameStat.movesHistory.length - 1],
-          )
-        ) {
-          // checkmate
-          setGameStat(prev => ({
-            ...prev,
-            checkmate: prev.step === 'white' ? 'black' : 'white',
-            gameResult: prev.step,
-            isGameActive: false,
-          }));
-        } else {
-          // check
-          setGameStat(prev => ({
-            ...prev,
-            check: prev.step === 'white' ? 'black' : 'white',
-          }));
-        }
-      } else if (
-        IsStalemate(newMove, gameStat.step === 'white' ? 'black' : 'white')
-      ) {
-        setGameStat(prev => ({
-          ...prev,
-          gameResult: 'draw',
-          isGameActive: false,
-          comment: 'Stalemate',
-        }));
-      } else if (OnlyKingsLeft(newMove)) {
+      IsKingUnderAttack(newMove);
+      if (OnlyKingsLeft(newMove)) {
         setGameStat(prev => ({
           ...prev,
           gameResult: 'draw',
@@ -377,6 +353,49 @@ export default function ChessScreen() {
     OnNewPiecePoint(cell, activePiece);
   }
 
+  function IsKingUnderAttack(newPiecePlacement: PiecePlacementLogType) {
+    if (
+      IsKingChecked(
+        newPiecePlacement,
+        gameStat.step === 'white' ? 'black' : 'white',
+      )
+    ) {
+      if (
+        IsCheckmate(
+          newPiecePlacement,
+          gameStat.step === 'white' ? 'black' : 'white',
+          gameStat.movesHistory[gameStat.movesHistory.length - 1],
+        )
+      ) {
+        // checkmate
+        setGameStat(prev => ({
+          ...prev,
+          checkmate: prev.step === 'white' ? 'black' : 'white',
+          gameResult: prev.step,
+          isGameActive: false,
+        }));
+      } else {
+        // check
+        setGameStat(prev => ({
+          ...prev,
+          check: prev.step === 'white' ? 'black' : 'white',
+        }));
+      }
+    } else if (
+      IsStalemate(
+        newPiecePlacement,
+        gameStat.step === 'white' ? 'black' : 'white',
+      )
+    ) {
+      setGameStat(prev => ({
+        ...prev,
+        gameResult: 'draw',
+        isGameActive: false,
+        comment: 'Stalemate',
+      }));
+    }
+  }
+
   const handleCellPress = useCallback(
     (cell: number, activePiece: any) => {
       CellAction(cell, activePiece);
@@ -449,6 +468,7 @@ export default function ChessScreen() {
       ),
       newPiecePlacement,
     ];
+    IsKingUnderAttack(newPiecePlacement);
 
     setGameStat(prev => ({
       ...prev,
@@ -489,7 +509,11 @@ export default function ChessScreen() {
         style={{
           width: width * 0.12 * 8,
           aspectRatio: 1,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}>
+        <SquaresNaming />
         <FlatList
           inverted
           data={rules.rows}

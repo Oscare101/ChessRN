@@ -51,7 +51,7 @@ export default function TimerBlock(props: {
 const styles = StyleSheet.create({
   block: {
     width: width * 0.37,
-    height: width * 0.1,
+    height: width * 0.12,
     paddingHorizontal: width * 0.02,
     borderRadius: width * 0.015,
     alignItems: 'center',
