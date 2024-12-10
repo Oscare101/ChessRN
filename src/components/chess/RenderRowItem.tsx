@@ -1,9 +1,9 @@
-import {FlatList, StyleSheet, Text, View} from 'react-native';
+import {FlatList} from 'react-native';
 import React from 'react';
 import rules from '../../constants/rules';
 import RenderCellItem from './RenderCellItem';
 
-export default function RenderRowItem(props: any) {
+function RenderRowItem(props: any) {
   return (
     <FlatList
       horizontal
@@ -13,12 +13,6 @@ export default function RenderRowItem(props: any) {
           column={item}
           row={props.row}
           onPress={props.onPress}
-          // activeCell={props.activeCell}
-          // routeCells={props.routeCells}
-          // piecesPlacementLog={props.piecesPlacementLog}
-          // step={props.step}
-          // lastMove={props.lastMove}
-          // check={props.check}
           gameStat={props.gameStat}
           showMoveIndex={props.showMoveIndex}
         />
@@ -27,4 +21,4 @@ export default function RenderRowItem(props: any) {
   );
 }
 
-const styles = StyleSheet.create({});
+export default React.memo(RenderRowItem);

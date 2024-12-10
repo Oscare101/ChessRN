@@ -10,7 +10,7 @@ import {
 
 const width = Dimensions.get('screen').width;
 
-export default function RenderCellItem(props: {
+function RenderCellItem(props: {
   column: any;
   row: any;
   onPress: any;
@@ -19,6 +19,7 @@ export default function RenderCellItem(props: {
 }) {
   const cellIndex: number =
     props.column.index + props.row.index * rules.rows.length;
+
   const isEven: boolean =
     (props.column.index % 2 === 0 && props.row.index % 2 === 0) ||
     (props.column.index % 2 === 1 && props.row.index % 2 === 1);
@@ -30,8 +31,7 @@ export default function RenderCellItem(props: {
           props.gameStat.piecesPlacementLog.length - 1
         ];
 
-  const cell = lastPiecePlacement[cellIndex];
-  const piece = cell?.piece;
+  const piece = lastPiecePlacement[cellIndex]?.piece;
   const lastMove =
     props.gameStat.movesHistory[props.gameStat.movesHistory.length - 1];
   const activeCell = props.gameStat.activeCell;
@@ -60,6 +60,7 @@ export default function RenderCellItem(props: {
     transform: props.gameStat.step === 'black' ? [{rotate: '180deg'}] : [],
   };
 
+  // check if this sell is for en Passant
   const enPassantCell: boolean = !!(
     activeCell &&
     activeCell % 8 !== cellIndex % 8 &&
@@ -112,3 +113,5 @@ export default function RenderCellItem(props: {
     </TouchableOpacity>
   );
 }
+
+export default React.memo(RenderCellItem);

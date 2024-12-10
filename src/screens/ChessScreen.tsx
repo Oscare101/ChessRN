@@ -418,6 +418,46 @@ export default function ChessScreen() {
     );
   }
 
+  function OnPromotion(newPiece: any) {
+    const to: number =
+      gameStat.movesHistory[gameStat.movesHistory.length - 1].to;
+
+    const newCell: PiecePlacementType = {
+      ...gameStat.piecesPlacementLog[gameStat.piecesPlacementLog.length - 1][
+        to
+      ],
+      piece: {
+        name: newPiece,
+        color:
+          gameStat.piecesPlacementLog[gameStat.piecesPlacementLog.length - 1][
+            to
+          ].piece!.color,
+        id: gameStat.piecesPlacementLog[gameStat.piecesPlacementLog.length - 1][
+          to
+        ].piece!.id,
+      },
+    };
+
+    const newPiecePlacement: PiecePlacementLogType = {
+      ...gameStat.piecesPlacementLog[gameStat.piecesPlacementLog.length - 1],
+      [to]: newCell,
+    };
+    const newPiecePlacementLog: PiecePlacementLogArrayType = [
+      ...gameStat.piecesPlacementLog.slice(
+        0,
+        gameStat.piecesPlacementLog.length - 1,
+      ),
+      newPiecePlacement,
+    ];
+
+    setGameStat(prev => ({
+      ...prev,
+      piecesPlacementLog: newPiecePlacementLog,
+    }));
+    setModal(false);
+    onPlayerMove();
+  }
+
   return (
     <View
       style={{
@@ -484,47 +524,7 @@ export default function ChessScreen() {
       <PromotionModal
         visible={modal}
         step={gameStat.step}
-        onSelect={(newPiece: any) => {
-          const to: number =
-            gameStat.movesHistory[gameStat.movesHistory.length - 1].to;
-
-          const newCell: PiecePlacementType = {
-            ...gameStat.piecesPlacementLog[
-              gameStat.piecesPlacementLog.length - 1
-            ][to],
-            piece: {
-              name: newPiece,
-              color:
-                gameStat.piecesPlacementLog[
-                  gameStat.piecesPlacementLog.length - 1
-                ][to].piece!.color,
-              id: gameStat.piecesPlacementLog[
-                gameStat.piecesPlacementLog.length - 1
-              ][to].piece!.id,
-            },
-          };
-
-          const newPiecePlacement: PiecePlacementLogType = {
-            ...gameStat.piecesPlacementLog[
-              gameStat.piecesPlacementLog.length - 1
-            ],
-            [to]: newCell,
-          };
-          const newPiecePlacementLog: PiecePlacementLogArrayType = [
-            ...gameStat.piecesPlacementLog.slice(
-              0,
-              gameStat.piecesPlacementLog.length - 1,
-            ),
-            newPiecePlacement,
-          ];
-
-          setGameStat(prev => ({
-            ...prev,
-            piecesPlacementLog: newPiecePlacementLog,
-          }));
-          setModal(false);
-          onPlayerMove();
-        }}
+        onSelect={OnPromotion}
       />
     </View>
   );
