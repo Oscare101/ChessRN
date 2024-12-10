@@ -10,7 +10,7 @@ import {
 
 const width = Dimensions.get('screen').width;
 
-function RenderCellItem(props: {
+export default function RenderCellItem(props: {
   column: any;
   row: any;
   onPress: any;
@@ -112,5 +112,3 @@ function RenderCellItem(props: {
     </TouchableOpacity>
   );
 }
-
-export default React.memo(RenderCellItem);

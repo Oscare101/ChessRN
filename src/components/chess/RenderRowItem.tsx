@@ -3,7 +3,7 @@ import React from 'react';
 import rules from '../../constants/rules';
 import RenderCellItem from './RenderCellItem';
 
-function RenderRowItem(props: any) {
+export default function RenderRowItem(props: any) {
   return (
     <FlatList
       horizontal
@@ -28,4 +28,3 @@ function RenderRowItem(props: any) {
 }
 
 const styles = StyleSheet.create({});
-export default React.memo(RenderRowItem);

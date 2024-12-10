@@ -97,6 +97,10 @@ export default function ChessScreen() {
     } else {
       setBlackTime(prev => prev + increment);
     }
+    setGameStat(prev => ({
+      ...prev,
+      step: prev.step === 'white' ? 'black' : 'white',
+    }));
 
     if (timerRef.current) clearInterval(timerRef.current);
   }
@@ -201,11 +205,7 @@ export default function ChessScreen() {
     }
   }
 
-  function CellAction(
-    cell: number,
-    activePiece: PieceType['value'],
-    promote?: string,
-  ) {
+  function CellAction(cell: number, activePiece: PieceType['value']) {
     if (gameStat.gameResult) return false;
     if (
       gameStat.routeCells?.length &&
@@ -327,10 +327,15 @@ export default function ChessScreen() {
                   '63RookMoved'
                 ],
         };
+        const isPawnPromotion: boolean = IsPawnPromotion(
+          gameStat.piecesPlacementLog[gameStat.piecesPlacementLog.length - 1],
+          gameStat.activeCell,
+          cell,
+        );
         setGameStat(prev => ({
           ...prev,
           castlingInfo: [...prev.castlingInfo, newCastling],
-          step: prev.step === 'white' ? 'black' : 'white',
+
           activeCell: null,
           routeCells: [],
         }));
@@ -347,16 +352,11 @@ export default function ChessScreen() {
             comment: 'Threefold Repetition',
           }));
         }
-        if (
-          IsPawnPromotion(
-            gameStat.piecesPlacementLog[gameStat.piecesPlacementLog.length - 1],
-            gameStat.activeCell,
-            cell,
-          )
-        ) {
+        if (isPawnPromotion) {
           setModal(true);
           return;
         }
+
         onPlayerMove();
       }
 
@@ -373,6 +373,7 @@ export default function ChessScreen() {
       }));
       return;
     }
+
     OnNewPiecePoint(cell, activePiece);
   }
 
@@ -380,7 +381,7 @@ export default function ChessScreen() {
     (cell: number, activePiece: any) => {
       CellAction(cell, activePiece);
     },
-    [gameStat.activeCell, gameStat.routeCells],
+    [gameStat.activeCell, gameStat.routeCells, gameStat.step],
   );
 
   useEffect(() => {
@@ -520,7 +521,6 @@ export default function ChessScreen() {
           setGameStat(prev => ({
             ...prev,
             piecesPlacementLog: newPiecePlacementLog,
-            step: prev.step === 'white' ? 'black' : 'white',
           }));
           setModal(false);
           onPlayerMove();
